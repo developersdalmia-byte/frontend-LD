@@ -133,8 +133,7 @@ function MagnifiedImage({
   return (
     <div
       className="relative w-full h-full overflow-hidden cursor-zoom-in"
-      {/* onMouseMove={handleMouseMove}
-      onMouseEnter={handleMouseEnter} */}
+      onMouseMove={handleMouseMove}
       onMouseLeave={() => setIsHovered(false)}
     >
       <div
