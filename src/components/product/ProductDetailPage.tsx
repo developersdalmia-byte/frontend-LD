@@ -112,16 +112,9 @@ function MagnifiedImage({
   const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
   const [isHovered, setIsHovered] = useState(false);
 
-  // const playSound = () => {
-  //   const audio = new Audio("/faaa.mp3");
-  //   audio.volume = 0.5;
-  //   audio.play().catch(() => {}); // Catch block to prevent errors if browser blocks autoplay
-  // };
-
-  // const handleMouseEnter = () => {
-  //   setIsHovered(true);
-  //   playSound();
-  // };
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+  };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
@@ -134,6 +127,7 @@ function MagnifiedImage({
     <div
       className="relative w-full h-full overflow-hidden cursor-zoom-in"
       onMouseMove={handleMouseMove}
+      onMouseEnter={handleMouseEnter}
       onMouseLeave={() => setIsHovered(false)}
     >
       <div
@@ -312,16 +306,6 @@ export default function ProductDetailPage({ product, onBack }: ProductDetailPage
     });
   };
 
-  const handleLightboxZoom = () => {
-    const newScale = lightboxScale === 1 ? 2.5 : 1;
-    setLightboxScale(newScale);
-    if (newScale > 1) {
-      const audio = new Audio("/faaa.mp3");
-      audio.volume = 0.5;
-      audio.play().catch(() => {});
-    }
-  };
-
   return (
     <div className="min-h-screen bg-white">
       {/* ── Lightbox ── */}
@@ -333,10 +317,7 @@ export default function ProductDetailPage({ product, onBack }: ProductDetailPage
           <div className="absolute top-0 left-0 right-0 h-20 px-8 flex items-center justify-between z-[1010]">
             <span className={`${playfair.className} text-xs tracking-[0.3em] uppercase`}>{product.name}</span>
             <div className="flex items-center gap-6">
-              <button 
-                onClick={(e) => { e.stopPropagation(); handleLightboxZoom(); }} 
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-              >
+              <button onClick={(e) => { e.stopPropagation(); setLightboxScale(p => p === 1 ? 2 : 1); }} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
                 {lightboxScale === 1 ? <ZoomIn size={22} strokeWidth={1} /> : <X size={22} strokeWidth={1} />}
               </button>
               <button onClick={() => { setIsLightboxOpen(false); setLightboxScale(1); }} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
@@ -346,13 +327,13 @@ export default function ProductDetailPage({ product, onBack }: ProductDetailPage
           </div>
           <div
             className="relative w-full h-full flex items-center justify-center transition-all duration-500 ease-out overflow-hidden"
-            style={{ 
-              cursor: lightboxScale > 1 ? "zoom-out" : "zoom-in" 
+            style={{
+              cursor: lightboxScale > 1 ? "zoom-out" : "zoom-in"
             }}
-            onClick={(e) => { e.stopPropagation(); handleLightboxZoom(); }}
+            onClick={(e) => { e.stopPropagation(); setLightboxScale(p => p === 1 ? 2.5 : 1); }}
             onMouseMove={handleLightboxMouseMove}
           >
-            <div 
+            <div
               className="relative w-full h-[90vh] max-w-[1200px] transition-transform duration-300 ease-out"
               style={{
                 transform: `scale(${lightboxScale})`,
@@ -480,11 +461,10 @@ export default function ProductDetailPage({ product, onBack }: ProductDetailPage
                     <button
                       key={s}
                       onClick={() => { setSelectedSize(s); setSizeError(false); }}
-                      className={`min-w-[44px] h-[44px] px-3 text-[11px] tracking-widest border transition-all duration-200 ${
-                        selectedSize === s
+                      className={`min-w-[44px] h-[44px] px-3 text-[11px] tracking-widest border transition-all duration-200 ${selectedSize === s
                           ? "border-black bg-black text-white"
                           : "border-[#d0ccc6] text-black hover:border-black"
-                      }`}
+                        }`}
                     >
                       {s}
                     </button>
@@ -521,11 +501,10 @@ export default function ProductDetailPage({ product, onBack }: ProductDetailPage
                   {/* Add to Cart */}
                   <button
                     onClick={handleAddToCart}
-                    className={`${playfair.className} w-full border text-[10px] tracking-[0.35em] uppercase py-3.5 transition-all duration-300 ${
-                      addedAnim
+                    className={`${playfair.className} w-full border text-[10px] tracking-[0.35em] uppercase py-3.5 transition-all duration-300 ${addedAnim
                         ? "border-[#2a5c2a] bg-[#2a5c2a] text-white"
                         : "border-black text-black hover:bg-black hover:text-white"
-                    }`}
+                      }`}
                   >
                     {addedAnim ? "ADDED TO CART ✓" : "ADD TO CART"}
                   </button>
