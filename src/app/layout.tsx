@@ -11,6 +11,7 @@ import dynamic from "next/dynamic";
 
 const CartDrawer = dynamic(() => import("@/components/cart/CartDrawer"));
 const WishlistDrawer = dynamic(() => import("@/components/layout/WishlistDrawer"));
+const ScrollToTop = dynamic(() => import("@/components/shared/ScrollToTop"));
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -60,6 +61,9 @@ export default function RootLayout({
               <main>
                 {children}
               </main>
+
+              {/* Global Utilities */}
+              <ScrollToTop />
 
               {/* Footer */}
               <Footer />
