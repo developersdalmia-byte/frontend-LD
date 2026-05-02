@@ -10,28 +10,28 @@ const playfair = Playfair_Display({
   style: ["normal", "italic"],
 });
 
-// const WEDDING_TYPES = [
-//   {
-//     title: "Bridal Couture",
-//     image: "https://api.lalitdalmia.com/uploads/websiteImages/images/womenswear/1LD 28.03.26_ 1603.webp",
-//     href: "/weddings/bridal",
-//   },
-//   {
-//     title: "Groom's Collection",
-//     image: "https://api.lalitdalmia.com/uploads/websiteImages/images/menswear/1_3 (1).webp",
-//     href: "/weddings/groom",
-//   },
-//   {
-//     title: "Bridesmaids",
-//     image: "https://api.lalitdalmia.com/uploads/websiteImages/images/womenswear/1LD 28.03.26_ 1961.webp",
-//     href: "/weddings/bridesmaids",
-//   },
-//   {
-//     title: "The Trousseau",
-//     image: "https://api.lalitdalmia.com/uploads/websiteImages/images/womenswear/1LD 28.03.26_ 617.webp",
-//     href: "/weddings/trousseau",
-//   },
-// ];
+const WEDDING_TYPES = [
+  {
+    title: "Bridal Couture",
+    image: "https://api.lalitdalmia.com/uploads/websiteImages/images/womenswear/1LD 28.03.26_ 1603.webp",
+    href: "/weddings/bridal",
+  },
+  {
+    title: "Groom's Collection",
+    image: "https://api.lalitdalmia.com/uploads/websiteImages/images/menswear/1_3 (1).webp",
+    href: "/weddings/groom",
+  },
+  {
+    title: "Bridesmaids",
+    image: "https://api.lalitdalmia.com/uploads/websiteImages/images/womenswear/1LD 28.03.26_ 1961.webp",
+    href: "/weddings/bridesmaids",
+  },
+  {
+    title: "The Trousseau",
+    image: "https://api.lalitdalmia.com/uploads/websiteImages/images/womenswear/1LD 28.03.26_ 617.webp",
+    href: "/weddings/trousseau",
+  },
+];
 
 export default function WeddingCategoriesGrid() {
   return (
