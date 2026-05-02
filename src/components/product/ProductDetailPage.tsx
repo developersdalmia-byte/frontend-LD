@@ -118,10 +118,10 @@ function MagnifiedImage({
   //   audio.play().catch(() => {}); // Catch block to prevent errors if browser blocks autoplay
   // };
 
-  const handleMouseEnter = () => {
-    setIsHovered(true);
-    playSound();
-  };
+  // const handleMouseEnter = () => {
+  //   setIsHovered(true);
+  //   playSound();
+  // };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
