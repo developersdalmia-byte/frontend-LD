@@ -112,11 +112,11 @@ function MagnifiedImage({
   const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
   const [isHovered, setIsHovered] = useState(false);
 
-  const playSound = () => {
-    const audio = new Audio("/faaa.mp3");
-    audio.volume = 0.5;
-    audio.play().catch(() => {}); // Catch block to prevent errors if browser blocks autoplay
-  };
+  // const playSound = () => {
+  //   const audio = new Audio("/faaa.mp3");
+  //   audio.volume = 0.5;
+  //   audio.play().catch(() => {}); // Catch block to prevent errors if browser blocks autoplay
+  // };
 
   const handleMouseEnter = () => {
     setIsHovered(true);
