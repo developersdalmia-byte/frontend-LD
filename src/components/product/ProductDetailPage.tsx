@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import OptimizedImage from "@/components/shared/OptimizedImage";
-import { Heart, ChevronDown, ChevronUp, ArrowLeft, ZoomIn, X } from "lucide-react";
+import { Heart, ArrowLeft, ZoomIn, X, Minus, Plus } from "lucide-react";
 import { Playfair_Display } from "next/font/google";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
@@ -20,7 +20,144 @@ interface ProductDetailPageProps {
   onBack?: () => void;
 }
 
-const SIZES = ["XS", "S", "M", "L", "XL", "XXL"];
+// WhatsApp SVG Icon
+function WhatsAppIcon({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+    </svg>
+  );
+}
+
+// ── Thumbnail Column: 100vh sticky, fade masks top/bottom, auto-scroll active ──
+function ThumbnailColumn({
+  images,
+  activeImageIdx,
+  onSelect,
+}: {
+  images: string[];
+  activeImageIdx: number;
+  onSelect: (idx: number) => void;
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const btnRefs = useRef<(HTMLButtonElement | null)[]>([]);
+
+  // Auto-scroll active thumbnail into centre of the column
+  useEffect(() => {
+    const container = containerRef.current;
+    const activeBtn = btnRefs.current[activeImageIdx];
+    if (!container || !activeBtn) return;
+    const containerRect = container.getBoundingClientRect();
+    const btnRect = activeBtn.getBoundingClientRect();
+    const offset =
+      btnRect.top - containerRect.top - containerRect.height / 2 + btnRect.height / 2;
+    container.scrollBy({ top: offset, behavior: "smooth" });
+  }, [activeImageIdx]);
+
+  return (
+    <div className="hidden lg:block sticky top-0 h-screen">
+      {/* Fade mask top */}
+      <div className="absolute top-0 left-0 right-0 h-20 z-10 pointer-events-none"
+        style={{ background: "linear-gradient(to bottom, white 30%, transparent 100%)" }}
+      />
+      {/* Fade mask bottom */}
+      <div className="absolute bottom-0 left-0 right-0 h-20 z-10 pointer-events-none"
+        style={{ background: "linear-gradient(to top, white 30%, transparent 100%)" }}
+      />
+
+      {/* Scrollable list */}
+      <div
+        ref={containerRef}
+        className="h-full overflow-y-auto flex flex-col gap-2.5 py-20 pr-2
+          [&::-webkit-scrollbar]:w-[3px]
+          [&::-webkit-scrollbar-track]:bg-transparent
+          [&::-webkit-scrollbar-thumb]:bg-[#d0ccc6]
+          [&::-webkit-scrollbar-thumb]:rounded-full
+          [&::-webkit-scrollbar-thumb:hover]:bg-[#9c9690]"
+      >
+        {images.map((img, idx) => (
+          <button
+            key={idx}
+            ref={(el) => { btnRefs.current[idx] = el; }}
+            onClick={() => onSelect(idx)}
+            className={`relative aspect-[3/4] w-full overflow-hidden shrink-0 transition-all duration-300 group
+              ${activeImageIdx === idx
+                ? "opacity-100 outline outline-[1.5px] outline-offset-[2px] outline-black"
+                : "opacity-40 hover:opacity-80 hover:outline hover:outline-[1px] hover:outline-offset-[2px] hover:outline-[#ccc]"
+              }`}
+          >
+            <OptimizedImage
+              src={img}
+              alt={`Thumbnail ${idx + 1}`}
+              fill
+              className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+            />
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Magnified Image: High-end zoom-on-hover effect ──
+function MagnifiedImage({
+  src,
+  alt,
+  priority = false,
+}: {
+  src: string;
+  alt: string;
+  priority?: boolean;
+}) {
+  const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
+  const [isHovered, setIsHovered] = useState(false);
+
+  const playSound = () => {
+    const audio = new Audio("/faaa.mp3");
+    audio.volume = 0.5;
+    audio.play().catch(() => {}); // Catch block to prevent errors if browser blocks autoplay
+  };
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+    playSound();
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - left) / width) * 100;
+    const y = ((e.clientY - top) / height) * 100;
+    setMousePos({ x, y });
+  };
+
+  return (
+    <div
+      className="relative w-full h-full overflow-hidden cursor-zoom-in"
+      onMouseMove={handleMouseMove}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <div
+        className="relative w-full h-full transition-transform duration-500 ease-out"
+        style={{
+          transform: isHovered ? "scale(1.8)" : "scale(1)",
+          transformOrigin: `${mousePos.x}% ${mousePos.y}%`,
+        }}
+      >
+        <OptimizedImage
+          src={src}
+          alt={alt}
+          fill
+          priority={priority}
+          sizes="(max-width: 1024px) 100vw, 60vw"
+          className="object-contain"
+        />
+      </div>
+    </div>
+  );
+}
+
+const WHATSAPP_NUMBER = "919999999999"; // Replace with actual number
 
 export default function ProductDetailPage({ product, onBack }: ProductDetailPageProps) {
   const { addToCart } = useCart();
@@ -29,61 +166,107 @@ export default function ProductDetailPage({ product, onBack }: ProductDetailPage
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [sizeError, setSizeError] = useState(false);
   const [addedAnim, setAddedAnim] = useState(false);
-  const [openAccordion, setOpenAccordion] = useState<string | null>("description");
+  const [openAccordion, setOpenAccordion] = useState<string | null>("product-details");
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
   const [activeImageIdx, setActiveImageIdx] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxScale, setLightboxScale] = useState(1);
+  const [lightboxPan, setLightboxPan] = useState({ x: 50, y: 50 });
 
-  const toggleLightboxZoom = () => {
-    setLightboxScale(prev => (prev === 1 ? 2 : 1));
+  const handleLightboxMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (lightboxScale === 1) return;
+    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - left) / width) * 100;
+    const y = ((e.clientY - top) / height) * 100;
+    setLightboxPan({ x, y });
   };
 
-  const images = product.images.length > 0 ? product.images : ["https://api.lalitdalmia.com/uploads/websiteImages/images/1.webp"];
+  const images = product.images.length > 0
+    ? product.images
+    : ["https://api.lalitdalmia.com/uploads/websiteImages/images/1.webp"];
 
   const priceNum =
     typeof product.price === "number"
       ? product.price
       : parseInt(String(product.price).replace(/[^\d]/g, ""), 10);
 
-  const formattedPrice = `₹${priceNum.toLocaleString("en-IN")}.00`;
+  // Format: INR. 5,09,900
+  const formattedPrice = `INR. ${priceNum.toLocaleString("en-IN")}`;
 
   const sizesToRender = product.sizes && product.sizes.length > 0 ? product.sizes : ["S", "M", "L"];
 
+  const isMadeToOrder = product.availability === "made-to-order";
+  const isSoldOut = product.availability === "sold-out";
+
+  // Product detail bullet points
+  const productDetailBullets: string[] = [
+    "Product Color May Slightly Vary Due To Photographic Lighting Sources Or Your Monitor Setting.",
+    product.tags?.includes("set") ? "MRP Inclusive Of : " + product.tags.join(" | ") : "",
+    product.fabric ? `Materials : ${product.fabric}` : "",
+    product.attributes?.style ? `Color : ${product.attributes.style}` : "",
+    product.care ? `Care Guide : ${product.care}` : "",
+    isMadeToOrder ? "Made to Order : 10 Weeks" : "",
+    "Model Wearing Size Small, Model Height 5'9\"",
+  ].filter(Boolean);
+
   const accordions = [
     {
-      id: "description",
-      label: "Description",
-      content:
-        product.description ||
-        "A masterpiece of artisanal craftsmanship, this piece embodies the finest traditions of Indian couture.",
+      id: "product-details",
+      label: "PRODUCT DETAILS",
+      content: (
+        <div className="text-[12px] leading-relaxed text-[#3d3a36]">
+          <ul className="space-y-1.5 mb-4">
+            {productDetailBullets.map((b, i) => (
+              <li key={i} className="flex gap-2">
+                <span className="mt-1 shrink-0">·</span>
+                <span>{b}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="text-[10px] tracking-[0.1em] text-[#9c9690] uppercase mt-4 pt-4 border-t border-[#f0ede8]">
+            SKU. {product.id.toUpperCase()}
+          </p>
+        </div>
+      ),
     },
     {
-      id: "details",
-      label: "Details & Styling",
-      content: [
-        product.attributes?.occasion ? `Occasion: ${product.attributes.occasion}` : "",
-        product.attributes?.style ? `Style: ${product.attributes.style}` : "",
-        product.attributes?.weddingType && product.attributes.weddingType.length > 0 ? `Wedding Types: ${product.attributes.weddingType.join(", ")}` : "",
-        product.fabric ? `Fabric: ${product.fabric}` : "Fabric: Pure silk with hand-embroidered zardozi work.",
-        product.care ? `Care: ${product.care}` : "Care: Dry clean only. Store in the provided garment bag away from direct sunlight.",
-      ].filter(Boolean).join(" • ")
+      id: "shipping",
+      label: "SHIPPING & DELIVERY",
+      content: (
+        <p className="text-[12px] leading-relaxed text-[#3d3a36]">
+          Complimentary delivery on all orders above ₹50,000. Standard delivery within 5–7 business days.
+          Made-to-order pieces require 8–10 weeks. Returns accepted within 14 days in original condition with tags attached.
+        </p>
+      ),
     },
     {
-      id: "delivery",
-      label: "Delivery & Returns",
-      content:
-        "Complimentary delivery on all orders above ₹50,000. Standard delivery within 5–7 business days. Made-to-order pieces require 4–6 weeks. Returns accepted within 14 days in original condition with tags attached.",
+      id: "care",
+      label: "CARE & GUIDE",
+      content: (
+        <p className="text-[12px] leading-relaxed text-[#3d3a36]">
+          {product.care || "Dry Clean Only. Store in provided garment bag away from direct sunlight and moisture."}
+        </p>
+      ),
     },
     {
-      id: "bespoke",
-      label: "Bespoke Service",
-      content:
-        "This piece can be customised to your measurements. For bespoke consultations, visit our flagship store or contact our atelier team.",
+      id: "manufacturer",
+      label: "MANUFACTURER'S DETAILS",
+      content: (
+        <p className="text-[12px] leading-relaxed text-[#3d3a36]">
+          Lalit Dalmia — Crafted in India. All garments are ethically handcrafted by our master artisans.
+        </p>
+      ),
+    },
+    {
+      id: "disclaimer",
+      label: "DISCLAIMER",
+      content: (
+        <p className="text-[12px] leading-relaxed text-[#3d3a36]">
+          Product colours may vary slightly due to photographic lighting and monitor settings. All measurements are approximate.
+        </p>
+      ),
     },
   ];
-
-    // Handle zooming logic removed for vertical stack layout
 
   function handleAddToCart() {
     if (!selectedSize) {
@@ -103,6 +286,23 @@ export default function ProductDetailPage({ product, onBack }: ProductDetailPage
     setTimeout(() => setAddedAnim(false), 2000);
   }
 
+  function handleBuyNow() {
+    if (!selectedSize) {
+      setSizeError(true);
+      setTimeout(() => setSizeError(false), 2000);
+      return;
+    }
+    handleAddToCart();
+    window.location.href = "/checkout";
+  }
+
+  function handleWhatsApp() {
+    const msg = encodeURIComponent(
+      `Hi, I'm interested in: ${product.name} (${formattedPrice})${selectedSize ? ` - Size: ${selectedSize}` : ""}`
+    );
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, "_blank");
+  }
+
   const handleWishlist = () => {
     toggleWishlist({
       id: product.id,
@@ -113,226 +313,178 @@ export default function ProductDetailPage({ product, onBack }: ProductDetailPage
     });
   };
 
+  const handleLightboxZoom = () => {
+    const newScale = lightboxScale === 1 ? 2.5 : 1;
+    setLightboxScale(newScale);
+    if (newScale > 1) {
+      const audio = new Audio("/faaa.mp3");
+      audio.volume = 0.5;
+      audio.play().catch(() => {});
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white">
-      {/* Lightbox Modal */}
+      {/* ── Lightbox ── */}
       {isLightboxOpen && (
-        <div 
-          className="fixed inset-0 z-[1000] bg-white flex flex-col items-center justify-center animate-in fade-in duration-500 overflow-hidden"
+        <div
+          className="fixed inset-0 z-[1000] bg-white flex flex-col items-center justify-center overflow-hidden"
           onClick={() => { setIsLightboxOpen(false); setLightboxScale(1); }}
         >
-          {/* Top Bar */}
           <div className="absolute top-0 left-0 right-0 h-20 px-8 flex items-center justify-between z-[1010]">
-             <span className={`${playfair.className} text-xs tracking-[0.3em] uppercase`}>{product.name}</span>
-             <div className="flex items-center gap-8">
-               <button 
-                 onClick={(e) => { e.stopPropagation(); toggleLightboxZoom(); }}
-                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                 title={lightboxScale === 1 ? "Zoom In" : "Zoom Out"}
-               >
-                 {lightboxScale === 1 ? <ZoomIn size={24} strokeWidth={1} /> : <X size={24} strokeWidth={1} />}
-               </button>
-               <button 
-                 onClick={() => { setIsLightboxOpen(false); setLightboxScale(1); }}
-                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-               >
-                 <X size={24} strokeWidth={1} />
-               </button>
-             </div>
-          </div>
-
-          {/* Image Container */}
-          <div 
-            className={`relative w-full h-full flex items-center justify-center transition-all duration-500 ease-out cursor-zoom-in ${
-              lightboxScale > 1 ? "cursor-zoom-out overflow-auto" : "cursor-zoom-in"
-            }`}
-            style={{ 
-              transform: `scale(${lightboxScale})`,
-              cursor: lightboxScale > 1 ? "grab" : "zoom-in"
-            }}
-            onClick={(e) => { e.stopPropagation(); toggleLightboxZoom(); }}
-          >
-            <div className="relative w-full h-[90vh] max-w-[1400px]">
-              <OptimizedImage
-                src={images[activeImageIdx]}
-                alt={product.name}
-                fill
-                className="object-contain"
-                priority
-              />
+            <span className={`${playfair.className} text-xs tracking-[0.3em] uppercase`}>{product.name}</span>
+            <div className="flex items-center gap-6">
+              <button 
+                onClick={(e) => { e.stopPropagation(); handleLightboxZoom(); }} 
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                {lightboxScale === 1 ? <ZoomIn size={22} strokeWidth={1} /> : <X size={22} strokeWidth={1} />}
+              </button>
+              <button onClick={() => { setIsLightboxOpen(false); setLightboxScale(1); }} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                <X size={22} strokeWidth={1} />
+              </button>
             </div>
           </div>
-
-          {/* Lightbox Controls (Only visible when NOT zoomed) */}
+          <div
+            className="relative w-full h-full flex items-center justify-center transition-all duration-500 ease-out overflow-hidden"
+            style={{ 
+              cursor: lightboxScale > 1 ? "zoom-out" : "zoom-in" 
+            }}
+            onClick={(e) => { e.stopPropagation(); handleLightboxZoom(); }}
+            onMouseMove={handleLightboxMouseMove}
+          >
+            <div 
+              className="relative w-full h-[90vh] max-w-[1200px] transition-transform duration-300 ease-out"
+              style={{
+                transform: `scale(${lightboxScale})`,
+                transformOrigin: `${lightboxPan.x}% ${lightboxPan.y}%`,
+              }}
+            >
+              <OptimizedImage src={images[activeImageIdx]} alt={product.name} fill className="object-contain" priority />
+            </div>
+          </div>
           <div className={`absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-8 transition-opacity duration-300 ${lightboxScale > 1 ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
-             <button 
-               onClick={(e) => { e.stopPropagation(); setActiveImageIdx((prev) => (prev > 0 ? prev - 1 : images.length - 1)); }}
-               className="group flex items-center gap-4 text-[10px] tracking-[0.4em] uppercase"
-             >
-               <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-2" />
-               Prev
-             </button>
-             <span className="text-[10px] tracking-[0.4em] uppercase font-medium">{activeImageIdx + 1} / {images.length}</span>
-             <button 
-               onClick={(e) => { e.stopPropagation(); setActiveImageIdx((prev) => (prev < images.length - 1 ? prev + 1 : 0)); }}
-               className="group flex items-center gap-4 text-[10px] tracking-[0.4em] uppercase"
-             >
-               Next
-               <ArrowLeft size={16} className="rotate-180 transition-transform group-hover:translate-x-2" />
-             </button>
+            <button onClick={(e) => { e.stopPropagation(); setActiveImageIdx(p => p > 0 ? p - 1 : images.length - 1); }} className="group flex items-center gap-3 text-[10px] tracking-[0.4em] uppercase">
+              <ArrowLeft size={14} className="transition-transform group-hover:-translate-x-1" /> Prev
+            </button>
+            <span className="text-[10px] tracking-[0.4em] uppercase">{activeImageIdx + 1} / {images.length}</span>
+            <button onClick={(e) => { e.stopPropagation(); setActiveImageIdx(p => p < images.length - 1 ? p + 1 : 0); }} className="group flex items-center gap-3 text-[10px] tracking-[0.4em] uppercase">
+              Next <ArrowLeft size={14} className="rotate-180 transition-transform group-hover:translate-x-1" />
+            </button>
           </div>
         </div>
       )}
 
       {/* Back button */}
       {onBack && (
-        <div className="px-4 md:px-14 pt-6 md:pt-8">
-          <button
-            onClick={onBack}
-            className={`${playfair.className} flex items-center gap-2 text-[10px] tracking-[0.3em] uppercase text-[#9c9690] hover:text-black transition-colors duration-200`}
-          >
-            <ArrowLeft size={14} />
-            Back
+        <div className="px-4 md:px-14 pt-6">
+          <button onClick={onBack} className={`${playfair.className} flex items-center gap-2 text-[10px] tracking-[0.3em] uppercase text-[#9c9690] hover:text-black transition-colors`}>
+            <ArrowLeft size={14} /> Back
           </button>
         </div>
       )}
-      {/* Main layout with Navbar padding */}
-      <div className="max-w-[1900px] mx-auto px-4 md:px-8 py-12 lg:pt-32">
-        <div className="grid grid-cols-1 lg:grid-cols-[80px_1fr_450px] gap-8 lg:gap-14 items-start">
 
-          {/* ─── COLUMN 1: Fixed Thumbnails (Left) ─── */}
-          <div className="hidden lg:flex flex-col gap-3 sticky top-[140px] max-h-[calc(100vh-200px)] overflow-y-auto scrollbar-hide">
+      {/* Main Grid */}
+      <div className="max-w-[2000px] mx-auto px-4 md:px-10 py-12 lg:pt-20">
+        <div className="grid grid-cols-1 lg:grid-cols-[120px_1fr_680px] gap-8 lg:gap-14 items-start">
+
+          {/* ── Column 1: Thumbnails (100vh, top/bottom blur fade, auto-scroll) ── */}
+          <ThumbnailColumn
+            images={images}
+            activeImageIdx={activeImageIdx}
+            onSelect={(idx) => {
+              setActiveImageIdx(idx);
+              document.getElementById(`product-image-${idx}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }}
+          />
+
+          {/* ── Column 2: Image Gallery ── */}
+          <div className="flex lg:flex-col overflow-x-auto lg:overflow-x-visible snap-x snap-mandatory lg:snap-none scrollbar-hide gap-6 -mx-4 px-4 lg:mx-0 lg:px-0">
             {images.map((img, idx) => (
-              <button 
+              <div
                 key={idx}
-                onClick={() => {
-                  const element = document.getElementById(`product-image-${idx}`);
-                  element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }}
-                className={`relative aspect-[3/4] w-full border transition-all duration-300 ${
-                  activeImageIdx === idx ? "border-black p-0.5" : "border-transparent opacity-50 hover:opacity-100"
-                }`}
-              >
-                <OptimizedImage src={img} alt="Thumbnail" fill className="object-cover" />
-              </button>
-            ))}
-          </div>
-
-          {/* ─── COLUMN 2: Image Gallery (Mobile Slider / Desktop Stack) ─── */}
-          <div className="flex lg:flex-col overflow-x-auto lg:overflow-x-visible snap-x snap-mandatory lg:snap-none scrollbar-hide gap-4 -mx-4 px-4 lg:mx-0 lg:px-0">
-            {images.map((img, idx) => (
-              <div 
-                key={idx} 
                 id={`product-image-${idx}`}
-                className="relative h-[65vh] lg:h-[90vh] w-[85vw] lg:w-full shrink-0 snap-center bg-[#fdfcfb] overflow-hidden group cursor-zoom-in"
+                className="relative h-[70vh] lg:h-[100vh] w-[85vw] lg:w-full shrink-0 snap-center bg-[#fdfcfb] overflow-hidden group cursor-zoom-in"
                 onClick={() => { setActiveImageIdx(idx); setIsLightboxOpen(true); }}
+                onMouseEnter={() => setActiveImageIdx(idx)}
               >
-                <OptimizedImage
+                <MagnifiedImage
                   src={img}
                   alt={`${product.name} - View ${idx + 1}`}
-                  fill
                   priority={idx === 0}
-                  sizes="(max-width: 1024px) 100vw, 60vw"
-                  className="object-contain transition-transform duration-1000 group-hover:scale-[1.02]"
                 />
-                
-                {/* Badges */}
                 {idx === 0 && (
-                  <div className="absolute top-6 left-6 lg:top-8 lg:left-8 flex flex-col gap-2 z-10 pointer-events-none">
-                    {product.new && (
-                      <span className="bg-black text-white text-[9px] tracking-[0.3em] uppercase px-4 py-2">
-                        New
-                      </span>
-                    )}
-                    {product.availability === "made-to-order" && (
-                      <span className="bg-white/90 backdrop-blur-md border border-black/5 text-black text-[9px] tracking-[0.25em] uppercase px-4 py-2">
-                        Bespoke
-                      </span>
-                    )}
+                  <div className="absolute top-5 left-5 flex flex-col gap-2 z-10 pointer-events-none">
+                    {product.new && <span className="bg-black text-white text-[9px] tracking-[0.3em] uppercase px-3 py-1.5">New</span>}
+                    {isMadeToOrder && <span className="bg-white/90 border border-black/10 text-black text-[9px] tracking-[0.25em] uppercase px-3 py-1.5">Made to Order</span>}
+                    {isSoldOut && <span className="bg-[#e5e0d8] text-[#6b6560] text-[9px] tracking-[0.2em] uppercase px-3 py-1.5">Sold Out</span>}
                   </div>
                 )}
-
-                {/* Subtle Zoom Indicator */}
-                <div className="absolute bottom-6 right-6 lg:bottom-8 lg:right-8 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-2 group-hover:translate-y-0">
-                  <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-full border border-black/10 flex items-center justify-center bg-white/60 backdrop-blur-sm shadow-sm">
-                    <ZoomIn size={16} className="lg:hidden" />
-                    <ZoomIn size={18} className="hidden lg:block" strokeWidth={1} />
+                <div className="absolute bottom-5 right-5 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                  <div className="w-10 h-10 rounded-full border border-black/10 flex items-center justify-center bg-white/70 backdrop-blur-sm">
+                    <ZoomIn size={16} strokeWidth={1.5} />
                   </div>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* ─── Mobile Slider Indicators ─── */}
-          <div className="flex lg:hidden justify-center gap-2 mt-4">
-             {images.map((_, idx) => (
-               <div 
-                 key={idx} 
-                 className={`h-1.5 transition-all duration-300 rounded-full ${activeImageIdx === idx ? "w-6 bg-black" : "w-1.5 bg-[#e8e4de]"}`}
-               />
-             ))}
-          </div>
+          {/* ── Column 3: Product Info (Right Panel — matches screenshot) ── */}
+          <div className="flex flex-col sticky top-[130px]">
 
-          {/* ─── COLUMN 3: Sticky Product Info (Right) ─── */}
-          <div className="flex flex-col sticky top-[140px]">
             {/* Category */}
-            {product.category && (
-              <p className="text-[9px] tracking-[0.4em] uppercase text-[#9c9690] mb-4">
-                {product.category}
-                {product.collection && ` — ${product.collection}`}
-              </p>
-            )}
+            <p className="text-[9px] tracking-[0.45em] uppercase text-[#9c9690] mb-3">
+              {product.category}
+            </p>
 
-            {/* Name */}
-            <h1 className={`${playfair.className} text-2xl lg:text-3xl font-normal text-black leading-[1.2] mb-3 tracking-wide`}>
-              {product.name}
-            </h1>
-
-            {/* Subcategory */}
-            {product.subcategory && (
-              <p className={`${playfair.className} text-sm italic text-[#9c9690] mb-4`}>
-                {product.subcategory}
-              </p>
-            )}
-
-            {/* Divider */}
-            <div className="h-px bg-[#f0ede8] my-4" />
-
-            {/* Price */}
-            <div className="flex items-baseline gap-3 mb-6">
-              <span
-                className={`${playfair.className} text-xl lg:text-2xl font-medium text-black ${
-                  product.availability === "sold-out" ? "opacity-40 line-through" : ""
-                }`}
+            {/* Name + Wishlist */}
+            <div className="flex items-start justify-between gap-4 mb-4">
+              <h1 className={`${playfair.className} text-xl lg:text-2xl font-normal text-black leading-[1.25] tracking-wide uppercase`}>
+                {product.name}
+              </h1>
+              <button
+                onClick={handleWishlist}
+                className="shrink-0 mt-0.5"
+                aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
               >
-                {formattedPrice}
-              </span>
-              <span className="text-[10px] tracking-[0.15em] uppercase text-[#9c9690]">
-                Incl. of all taxes
-              </span>
+                <Heart
+                  size={20}
+                  strokeWidth={1.5}
+                  className={`transition-all duration-200 ${wishlisted ? "fill-black stroke-black" : "stroke-black fill-none"}`}
+                />
+              </button>
             </div>
 
-            {/* Size selector */}
-            {product.availability !== "sold-out" && (
-              <div className="mb-8">
-                <div className="flex items-center justify-between mb-4">
-                  <p className="text-[10px] tracking-[0.25em] uppercase text-black font-medium">Select Size</p>
-                  <button 
+            {/* Price */}
+            <p className={`${playfair.className} text-base font-medium text-black mb-1`}>
+              {formattedPrice}
+            </p>
+            <p className="text-[10px] text-[#6b6560] mb-6 leading-relaxed">
+              All Taxes are included in MRP, Shipping and Duties calculated at checkout
+            </p>
+
+            {/* ── Size Selector ── */}
+            {!isSoldOut && (
+              <div className="mb-5">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-[10px] tracking-[0.3em] uppercase text-black font-medium">SIZE:</p>
+                  <button
                     onClick={() => setIsSizeGuideOpen(true)}
-                    className="text-[10px] tracking-[0.1em] uppercase text-black underline underline-offset-8 hover:text-[#9c9690] transition-colors"
+                    className="flex items-center gap-1.5 text-[10px] tracking-[0.1em] text-[#3d3a36] hover:text-black transition-colors"
                   >
-                    Size Guide
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M9 3H4a1 1 0 00-1 1v16a1 1 0 001 1h16a1 1 0 001-1v-5M9 3l6 6M9 3v6h6" /></svg>
+                    Size Chart
                   </button>
                 </div>
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-2">
                   {sizesToRender.map((s) => (
                     <button
                       key={s}
                       onClick={() => { setSelectedSize(s); setSizeError(false); }}
-                      className={`w-12 h-12 text-[11px] tracking-widest border transition-all duration-300 ${
+                      className={`min-w-[44px] h-[44px] px-3 text-[11px] tracking-widest border transition-all duration-200 ${
                         selectedSize === s
                           ? "border-black bg-black text-white"
-                          : "border-[#f0ede8] text-black hover:border-black"
+                          : "border-[#d0ccc6] text-black hover:border-black"
                       }`}
                     >
                       {s}
@@ -340,114 +492,94 @@ export default function ProductDetailPage({ product, onBack }: ProductDetailPage
                   ))}
                 </div>
                 {sizeError && (
-                  <p className="text-[10px] text-red-600 tracking-wide mt-3 animate-pulse">
-                    Please select a size to continue
+                  <p className="text-[10px] text-red-600 tracking-wide mt-2 animate-pulse">Please select a size to continue</p>
+                )}
+              </div>
+            )}
+
+            {/* Shipping + Fitting info */}
+            {isMadeToOrder && (
+              <div className="mb-5 space-y-1.5">
+                <p className="text-[11px] text-[#3d3a36]">
+                  <span className="font-medium">Shipping:</span> Made to order : 10 weeks
+                </p>
+                {product.attributes?.occasion && (
+                  <p className="text-[11px] text-[#3d3a36]">
+                    <span className="font-medium">Fitting:</span> Bust · 34.5in | Waist · 27in | Hip · 37in | Shoulder · 14.5in
                   </p>
                 )}
               </div>
             )}
 
-            {/* Add to Cart + Wishlist */}
-            <div className="flex gap-3 mb-10">
-              {product.availability === "sold-out" ? (
-                <button
-                  className={`${playfair.className} flex-1 border border-black text-black text-[11px] tracking-[0.35em] uppercase py-3.5 hover:bg-black hover:text-white transition-all duration-300`}
-                >
-                  Notify Me
+            {/* ── CTA Buttons ── */}
+            <div className="flex flex-col gap-2.5 mb-8">
+              {isSoldOut ? (
+                <button className={`${playfair.className} w-full border border-black text-black text-[10px] tracking-[0.35em] uppercase py-3.5 hover:bg-black hover:text-white transition-all duration-300`}>
+                  NOTIFY ME
                 </button>
               ) : (
-                <button
-                  onClick={handleAddToCart}
-                  className={`${playfair.className} flex-1 text-[11px] tracking-[0.3em] uppercase py-3.5 transition-all duration-500 relative overflow-hidden group ${
-                    addedAnim
-                      ? "bg-[#2a5c2a] text-white border border-[#2a5c2a]"
-                      : "bg-black text-white border border-black hover:bg-white hover:text-black"
-                  }`}
-                >
-                  <span className="relative z-10 flex items-center justify-center gap-2">
-                    {addedAnim
-                      ? "Added to Cart ✓"
-                      : product.availability === "made-to-order"
-                      ? "Request Made-to-Order"
-                      : "Add to Cart"}
-                  </span>
-                </button>
-              )}
-
-              {/* ✅ Connected to global WishlistContext */}
-              <button
-                onClick={handleWishlist}
-                className={`w-[52px] shrink-0 flex items-center justify-center border transition-all duration-300 ${
-                  wishlisted ? "border-black bg-black" : "border-[#e8e4de] bg-white hover:border-black hover:bg-[#faf8f5]"
-                }`}
-                aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
-              >
-                <Heart
-                  size={18}
-                  className={`transition-all ${
-                    wishlisted ? "fill-white stroke-white" : "stroke-black fill-none"
-                  }`}
-                />
-              </button>
-            </div>
-
-            {/* Tags */}
-            {product.tags && product.tags.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-8">
-                {product.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="text-[9px] tracking-[0.2em] uppercase border border-[#e8e4de] text-[#9c9690] px-3 py-1.5"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            )}
-
-            {/* Divider */}
-            <div className="h-px bg-[#e8e4de] mb-6" />
-
-            {/* Accordions */}
-            <div className="space-y-0">
-              {accordions.map((acc) => (
-                <div key={acc.id} className="border-b border-[#f0ede8]">
+                <>
+                  {/* Add to Cart */}
                   <button
-                    onClick={() => setOpenAccordion(openAccordion === acc.id ? null : acc.id)}
-                    className="w-full flex items-center justify-between py-4 text-left group"
-                  >
-                    <span className="text-[10px] tracking-[0.25em] uppercase text-black font-medium group-hover:text-[#9c9690] transition-colors">
-                      {acc.label}
-                    </span>
-                    {openAccordion === acc.id ? (
-                      <ChevronUp size={12} className="text-[#9c9690]" />
-                    ) : (
-                      <ChevronDown size={12} className="text-[#9c9690]" />
-                    )}
-                  </button>
-
-                  <div
-                    className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                      openAccordion === acc.id ? "max-h-[500px] opacity-100 pb-6" : "max-h-0 opacity-0"
+                    onClick={handleAddToCart}
+                    className={`${playfair.className} w-full border text-[10px] tracking-[0.35em] uppercase py-3.5 transition-all duration-300 ${
+                      addedAnim
+                        ? "border-[#2a5c2a] bg-[#2a5c2a] text-white"
+                        : "border-black text-black hover:bg-black hover:text-white"
                     }`}
                   >
-                    <p className="text-[13px] leading-relaxed text-[#6b6560] font-light">{acc.content}</p>
+                    {addedAnim ? "ADDED TO CART ✓" : "ADD TO CART"}
+                  </button>
+
+                  {/* Buy It Now */}
+                  <button
+                    onClick={handleBuyNow}
+                    className={`${playfair.className} w-full bg-black text-white text-[10px] tracking-[0.35em] uppercase py-3.5 hover:bg-[#1a1a1a] transition-all duration-300`}
+                  >
+                    BUY IT NOW
+                  </button>
+
+                  {/* WhatsApp */}
+                  <button
+                    onClick={handleWhatsApp}
+                    className="w-full bg-[#1a1a1a] text-white text-[10px] tracking-[0.35em] uppercase py-3.5 hover:bg-black transition-all duration-300 flex items-center justify-center gap-2.5"
+                  >
+                    <WhatsAppIcon size={16} />
+                    ORDER VIA WHATSAPP
+                  </button>
+                </>
+              )}
+            </div>
+
+            {/* ── Accordions ── */}
+            <div className="border-t border-[#e8e4de]">
+              {accordions.map((acc) => (
+                <div key={acc.id} className="border-b border-[#e8e4de]">
+                  <button
+                    onClick={() => setOpenAccordion(openAccordion === acc.id ? null : acc.id)}
+                    className="w-full flex items-center justify-between py-3.5 text-left"
+                  >
+                    <span className="text-[9px] tracking-[0.35em] uppercase text-black font-medium">
+                      {acc.label}
+                    </span>
+                    {openAccordion === acc.id
+                      ? <Minus size={12} className="text-black shrink-0" />
+                      : <Plus size={12} className="text-black shrink-0" />
+                    }
+                  </button>
+                  <div className={`overflow-hidden transition-all duration-300 ease-in-out ${openAccordion === acc.id ? "max-h-[600px] opacity-100 pb-5" : "max-h-0 opacity-0"}`}>
+                    {acc.content}
                   </div>
                 </div>
               ))}
             </div>
-
-            {/* Product ID */}
-            <p className="text-[9px] tracking-[0.15em] uppercase text-[#b8b0a6] mt-10">
-              Reference: {product.id.toUpperCase()}
-            </p>
           </div>
         </div>
       </div>
 
-      <SizeGuideModal 
-        isOpen={isSizeGuideOpen} 
-        onClose={() => setIsSizeGuideOpen(false)} 
+      <SizeGuideModal
+        isOpen={isSizeGuideOpen}
+        onClose={() => setIsSizeGuideOpen(false)}
         category={product.category}
         subcategory={product.subcategory}
       />
