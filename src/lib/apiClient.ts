@@ -1,4 +1,6 @@
-export const API_BASE = "https://api.lalitdalmia.com";
+// export const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://192.168.1.44:5000";
+export const API_BASE = "https://api.lalitdalmia.com"
+// export const API_BASE = "http://192.168.1.44:5000";
 export const BASE_URL = `${API_BASE}/api/v1`;
 
 type ApiResponse<T = unknown> = {
@@ -11,6 +13,7 @@ type ApiResponse<T = unknown> = {
 
 type ApiOptions = RequestInit & {
   retry?: boolean;
+  baseUrl?: string;
 };
 
 const getAccessToken = () => {
@@ -28,7 +31,12 @@ const setAccessToken = (token: string) => {
 };
 
 const clearAuth = () => {
-  localStorage.clear();
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("refreshToken");
+  localStorage.removeItem("authUser");
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("auth-session-expired"));
+  }
 };
 
 class ApiError extends Error {
@@ -41,22 +49,40 @@ class ApiError extends Error {
   }
 }
 
-export const apiClient = async <T = unknown>(
+export async function apiClient<T>(
   endpoint: string,
   options: ApiOptions = {}
-): Promise<ApiResponse<T>> => {
+): Promise<ApiResponse<T>> {
+  const { baseUrl, ...fetchOptions } = options;
+  const url = `${baseUrl || BASE_URL}${endpoint}`;
   let accessToken = getAccessToken();
 
   const makeRequest = async () => {
-    return fetch(`${BASE_URL}${endpoint}`, {
-      ...options,
-      headers: {
-        "Content-Type": "application/json",
-        ...(accessToken && {
-          Authorization: `Bearer ${accessToken}`,
-        }),
-        ...options.headers,
-      },
+    const currentToken = getAccessToken();
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+
+    if (currentToken) {
+      headers["Authorization"] = `Bearer ${currentToken}`;
+    }
+
+    // Only log in development
+    if (process.env.NODE_ENV === "development") {
+      if (currentToken) {
+        console.log(`[apiClient] Authorized Request: ${url}`);
+      } else if (fetchOptions.method && fetchOptions.method !== "GET") {
+        console.warn(`[apiClient] Request without token: ${url}`);
+      }
+    }
+
+    if (options.headers && typeof options.headers === "object" && !Array.isArray(options.headers)) {
+      Object.assign(headers, options.headers);
+    }
+
+    return fetch(url, {
+      ...fetchOptions,
+      headers,
     });
   };
 
@@ -84,13 +110,12 @@ export const apiClient = async <T = unknown>(
     errorMessage.includes("jwt") ||
     errorMessage.includes("malformed") ||
     errorMessage.includes("invalid token") ||
-    errorMessage.includes("unauthorized");
+    errorMessage.includes("unauthorized") ||
+    errorMessage.includes("authentication required");
 
   if (isAuthError) {
     const existingRefreshToken = getRefreshToken();
 
-    // Agar user logged in hi nahi tha (koi token nahi),
-    // toh "session expire" mat bolo — seedha API error throw karo
     if (!accessToken && !existingRefreshToken) {
       throw new ApiError(
         data.message || data.error || "Something went wrong",
@@ -98,7 +123,6 @@ export const apiClient = async <T = unknown>(
       );
     }
 
-    // User logged in tha — token refresh karne ki koshish karo
     if (!options.retry) {
       try {
         if (!existingRefreshToken) throw new Error("No refresh token");
@@ -132,7 +156,6 @@ export const apiClient = async <T = unknown>(
     }
   }
 
-  // If the response is an array (e.g. /categories), treat it as a successful data payload directly
   if (Array.isArray(data)) {
     return data as unknown as ApiResponse<T>;
   }
@@ -140,7 +163,6 @@ export const apiClient = async <T = unknown>(
   if (typeof data === "object" && data !== null && !("success" in data)) {
     const dataObj = data as Record<string, unknown>;
     if (!dataObj.error && !dataObj.message) {
-      // If it's a valid object without 'success' but also without error fields, treat it as data
       return { success: true, data: data as T };
     }
   }

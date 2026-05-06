@@ -10,6 +10,8 @@ interface UseProductsOptions {
   subcategory?: string;
   occasion?: string;
   search?: string;
+  sort?: string;
+  availability?: string;
   initialPage?: number;
   pollInterval?: number;
 }
@@ -35,6 +37,8 @@ export function useProducts(
     subcategory,
     occasion,
     search,
+    sort,
+    availability,
     initialPage = 1,
     pollInterval = 0,
   } = options;
@@ -79,6 +83,8 @@ export function useProducts(
           subcategory,
           occasion,
           search,
+          sort,
+          availability,
         });
 
         setProducts((prev) =>
@@ -107,7 +113,7 @@ export function useProducts(
         setLoadingMore(false);
       }
     },
-    [limit, category, subcategory, occasion, search]
+    [limit, category, subcategory, occasion, search, sort, availability]
   );
 
   /**
@@ -127,7 +133,7 @@ export function useProducts(
       isMounted = false;
       abortControllerRef.current?.abort();
     };
-  }, [fetchProducts, initialPage, category, subcategory, occasion, search]);
+  }, [fetchProducts, initialPage, category, subcategory, occasion, search, sort, availability]);
 
   /**
    * Polling (optional)

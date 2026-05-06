@@ -1,6 +1,6 @@
 import dynamic from "next/dynamic";
 import HeroSlider from "@/components/home/HeroSlider";
-import ProductGridSection from "@/components/home/ProductGridSection";
+import CategoryGridSection from "@/components/home/CategoryGridSection";
 import { Skeleton } from "@/components/shared/Skeleton";
 import CategoryCard from "@/components/home/CategoryCard";
 import AppointmentHero from "@/components/appointment/AppointmentHero";
@@ -40,28 +40,28 @@ const WeddingCategoriesGrid = dynamic(() => import("@/components/home/WeddingCat
 const WeddingProductGrid = dynamic(() => import("@/components/home/WeddingProductGrid"), {
   loading: () => <Skeleton className="h-[500px] w-full" />
 });
-const ArtOfRetailSection = dynamic(() => import("@/components/home/ArtOfRetailSection"), {
-  loading: () => <Skeleton className="h-[500px] w-full" />
-});
+import ArtOfRetailSection from "@/components/home/ArtOfRetailSection";
+import CalcuttaLegacySection from "@/components/home/CalcuttaLegacySection";
 
 export default function HomePage() {
   return (
     <>
       {/* Hero slider - Immediate */}
       <HeroSlider />
-      <ProductGridSection />
+      <CategoryGridSection />
       <RoyalMenswearSection />
       <Menswearproduct />
       <Sarees/>
       <SareesProductGrid />
       <IndoWesternSection />
       <IndoWesternProductGrid />
-      <HandloomSarees />
-      <HandloomSareesProductGrid />
+      {/* <HandloomSarees />
+      <HandloomSareesProductGrid /> */}
       <WeddingsSection />
       {/* <WeddingCategoriesGrid /> */}
       <WeddingProductGrid />
       <ArtOfRetailSection/>
+      <CalcuttaLegacySection />
       <AppointmentHero />
     </>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { NavItem } from "@/types";
 
 type Props = {
@@ -10,6 +11,8 @@ type Props = {
 };
 
 export default function MegaMenu({ label, items, onClose }: Props) {
+  const router = useRouter();
+
   return (
     <div
       className="fixed left-0 right-0 z-[200] bg-[#fdfcfb] shadow-2xl border-t border-[#e8e4de]"
@@ -34,6 +37,7 @@ export default function MegaMenu({ label, items, onClose }: Props) {
                       <Link
                         href={item.href}
                         onClick={onClose}
+                        onMouseEnter={() => router.prefetch(item.href)}
                         className="text-[13px] tracking-[0.05em] text-[#6b6560] hover:text-black transition-colors duration-200 block"
                       >
                         {item.label}

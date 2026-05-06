@@ -13,6 +13,7 @@ import {
 interface AuthUser {
   phone: string;
   name: string;
+  email?: string;
 }
 
 interface AuthContextType {
@@ -20,66 +21,112 @@ interface AuthContextType {
   isLoggedIn: boolean;
   login: (accessToken: string, refreshToken: string, user: AuthUser) => void;
   logout: () => void;
+  isLoginModalOpen: boolean;
+  /** Opens the login modal. Pass redirectPath to auto-redirect after login (e.g. "/checkout") */
+  openLoginModal: (redirectPath?: string) => void;
+  closeLoginModal: () => void;
+  /** Consumed once after successful login when a redirect was requested */
+  pendingRedirect: string | null;
+  clearPendingRedirect: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-// ✅ Safe localStorage read (NO useEffect needed)
 function getInitialUser(): AuthUser | null {
   if (typeof window === "undefined") return null;
-
   try {
     const storedUser = localStorage.getItem("authUser");
     const token = localStorage.getItem("accessToken");
-
-    if (token && storedUser) {
-      return JSON.parse(storedUser);
-    }
+    if (token && storedUser) return JSON.parse(storedUser);
   } catch {}
-
   return null;
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  // ✅ Lazy initialization (fixes your error)
   const [user, setUser] = useState<AuthUser | null>(getInitialUser);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [pendingRedirect, setPendingRedirect] = useState<string | null>(null);
 
-  // ✅ Handle Google redirect ONLY
+  const openLoginModal = useCallback((redirectPath?: string) => {
+    if (typeof redirectPath === "string") {
+      setPendingRedirect(redirectPath);
+      sessionStorage.setItem("pendingRedirect", redirectPath);
+    }
+    setIsLoginModalOpen(true);
+  }, []);
+
+  const closeLoginModal = useCallback(() => {
+    setIsLoginModalOpen(false);
+    // Do NOT clear pendingRedirect here — login handler will consume it
+  }, []);
+
+  const clearPendingRedirect = useCallback(() => {
+    setPendingRedirect(null);
+    sessionStorage.removeItem("pendingRedirect");
+  }, []);
+
+  // Handle Google OAuth redirect (#accessToken=...&refreshToken=...)
   useEffect(() => {
+    if (typeof window === "undefined") return;
     const hash = window.location.hash;
-
-    if (!hash) return;
+    if (!hash || !hash.includes("accessToken")) return;
 
     try {
       const params = new URLSearchParams(hash.replace("#", ""));
+      const authStatus = params.get("authStatus");
+      const accessToken = params.get("accessToken")?.replace(/^"|"$/g, "");
+      const refreshToken = params.get("refreshToken")?.replace(/^"|"$/g, "");
+      const userStr = params.get("user");
 
-      const accessToken = params.get("accessToken");
-      const refreshToken = params.get("refreshToken");
+      if (authStatus === "FAILED") {
+        console.error("Authentication failed:", params.get("message"));
+        return;
+      }
 
       if (accessToken && refreshToken) {
-        const authUser: AuthUser = {
-          phone: params.get("phone") || "Google User",
-          name: params.get("name") || "User",
+        let authUser: AuthUser = {
+          phone: "",
+          name: "User",
         };
 
-        // persist
+        if (userStr) {
+          try {
+            // User might be double encoded or quoted
+            const decodedUser = JSON.parse(userStr.replace(/^"|"$/g, ""));
+            authUser = {
+              phone: decodedUser.phone || decodedUser.phoneNumber || "",
+              name: decodedUser.name || decodedUser.fullName || "User",
+              email: decodedUser.email,
+            };
+          } catch (e) {
+            console.warn("Failed to parse user data from URL", e);
+          }
+        }
+
         localStorage.setItem("accessToken", accessToken);
         localStorage.setItem("refreshToken", refreshToken);
         localStorage.setItem("authUser", JSON.stringify(authUser));
 
-        // ✅ SAFE: event-based update (not hydration)
         setUser(authUser);
+        // Clean URL without refresh
+        window.history.replaceState({}, document.title, window.location.pathname);
 
-        // clean URL
-        window.history.replaceState(
-          {},
-          document.title,
-          window.location.pathname
-        );
+        // Consume pending redirect if exists
+        const storedRedirect = sessionStorage.getItem("pendingRedirect");
+        if (storedRedirect) {
+          window.location.href = storedRedirect;
+          sessionStorage.removeItem("pendingRedirect");
+        }
       }
     } catch (err) {
-      console.error("Google auth error:", err);
+      console.error("Google auth processing error:", err);
     }
+  }, []);
+
+  // Initialize state from storage
+  useEffect(() => {
+    const storedRedirect = sessionStorage.getItem("pendingRedirect");
+    if (storedRedirect) setPendingRedirect(storedRedirect);
   }, []);
 
   const login = useCallback(
@@ -87,7 +134,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
       localStorage.setItem("authUser", JSON.stringify(authUser));
-
       setUser(authUser);
     },
     []
@@ -97,9 +143,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("authUser");
-
+    sessionStorage.removeItem("pendingRedirect");
     setUser(null);
+    setPendingRedirect(null);
   }, []);
+
+  useEffect(() => {
+    const handleAuthFailure = () => {
+      logout();
+      openLoginModal();
+    };
+
+    window.addEventListener("auth-session-expired", handleAuthFailure);
+    return () => window.removeEventListener("auth-session-expired", handleAuthFailure);
+  }, [logout, openLoginModal]);
 
   const value = useMemo<AuthContextType>(
     () => ({
@@ -107,8 +164,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isLoggedIn: !!user,
       login,
       logout,
+      isLoginModalOpen,
+      openLoginModal,
+      closeLoginModal,
+      pendingRedirect,
+      clearPendingRedirect,
     }),
-    [user, login, logout]
+    [user, login, logout, isLoginModalOpen, openLoginModal, closeLoginModal, pendingRedirect, clearPendingRedirect]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -15,15 +15,16 @@ const playfair = Playfair_Display({
 });
 
 interface Props {
-  mainCategorySlug: string; // e.g. "mens-wear", "womens-wear", "weddings"
   initialFilters?: {
+    category?: string;
     occasion?: string;
     subcategory?: string;
     sort?: string;
+    availability?: string;
   };
 }
 
-function FilteredProductGridContent({ mainCategorySlug, initialFilters }: Props) {
+function FilteredProductGridContent({ initialFilters }: { initialFilters?: any }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -35,59 +36,42 @@ function FilteredProductGridContent({ mainCategorySlug, initialFilters }: Props)
   useEffect(() => {
     setActiveFilters(initialFilters || {});
   }, [
+    initialFilters?.category,
     initialFilters?.subcategory,
     initialFilters?.occasion,
     initialFilters?.sort,
+    initialFilters?.availability,
   ]);
 
-  // Senior Fix: Sync internal filter changes back to the URL
+  // Senior Fix: Sync internal filter changes back to the URL strictly
   const handleFilterChange = (newFilters: any) => {
     setActiveFilters(newFilters);
     
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams();
+    if (newFilters.category) params.set("category", newFilters.category);
     if (newFilters.subcategory) params.set("subcategory", newFilters.subcategory);
-    else params.delete("subcategory");
-    
     if (newFilters.occasion) params.set("occasion", newFilters.occasion);
-    else params.delete("occasion");
-    
     if (newFilters.sort) params.set("sort", newFilters.sort);
-    else params.delete("sort");
+    if (newFilters.availability) params.set("availability", newFilters.availability);
 
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
-  // Pass slugs directly to the API — no ID resolution needed.
-  // Backend accepts both category slug and subcategory slug as query params.
+  // Senior Fix: Pass all filters EXACTLY to the API hook
   const { products, loading, loadingMore, error, hasMore, loadMore, refresh, total } = useProducts({
     limit: 24,
-    // Only send mainCategory when no subcategory filter is active,
-    // because subcategory alone is enough to scope the results.
-    category: activeFilters.subcategory ? undefined : mainCategorySlug,
+    category: activeFilters.category || undefined,
     subcategory: activeFilters.subcategory || undefined,
     occasion: activeFilters.occasion || undefined,
+    sort: activeFilters.sort || undefined,
+    availability: activeFilters.availability || (activeFilters.readyToShip ? "available" : undefined),
   });
-
-  // Client-side sorting
-  let displayedProducts = [...products];
-
-  if (activeFilters.readyToShip) {
-    displayedProducts = displayedProducts.filter(p => p.availability === "available");
-  }
-
-  if (activeFilters.sort === "price_asc") {
-    displayedProducts.sort((a, b) => a.price - b.price);
-  } else if (activeFilters.sort === "price_desc") {
-    displayedProducts.sort((a, b) => b.price - a.price);
-  } else if (activeFilters.sort === "newest") {
-    displayedProducts.sort((a, b) => (a.new ? -1 : 1));
-  }
 
   return (
     <div className="w-full bg-[#fcfbf9] min-h-screen">
       <ProductFilterBar
-        currentMainCategory={mainCategorySlug}
-        totalProducts={displayedProducts.length > 0 ? displayedProducts.length : total}
+        currentMainCategory={activeFilters.category}
+        totalProducts={total}
         onFilterChange={handleFilterChange}
         initialFilters={activeFilters}
         currentGridLayout={gridLayout}
@@ -99,7 +83,7 @@ function FilteredProductGridContent({ mainCategorySlug, initialFilters }: Props)
           <ProductGridError message={error} onRetry={refresh} />
         ) : (
           <>
-            {displayedProducts.length === 0 && !loading ? (
+            {products.length === 0 && !loading ? (
               <div className="flex flex-col items-center justify-center py-32 text-center">
                 <h3 className={`${playfair.className} text-3xl text-black mb-4`}>No Products Found</h3>
                 <p className="text-sm text-[#9c9690] max-w-md italic">
@@ -107,19 +91,19 @@ function FilteredProductGridContent({ mainCategorySlug, initialFilters }: Props)
                   Try adjusting your filters or explore our other couture collections.
                 </p>
                 <button
-                  onClick={() => setActiveFilters({})}
+                  onClick={() => handleFilterChange({ category: activeFilters.category })}
                   className="mt-8 border-b border-black text-[10px] tracking-widest uppercase pb-1"
                 >
                   Clear All Filters
                 </button>
               </div>
             ) : (
-              <div className={`grid gap-x-4 gap-y-12 md:gap-x-8 md:gap-y-16 ${
+              <div className={`grid gap-x-2 gap-y-10 md:gap-x-4 md:gap-y-14 ${
                 gridLayout === 2
                   ? "grid-cols-1 md:grid-cols-2"
                   : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
               }`}>
-                {displayedProducts.map((product) => (
+                {products.map((product) => (
                   <ProductCard
                     key={product.id}
                     id={product.id}

@@ -22,23 +22,29 @@ export interface OrderItemData {
 }
 
 export interface CreateOrderPayload {
-  orderType: "ONLINE";
-  source: "WEBSITE";
-  customer: CustomerData;
-  shippingAddress: AddressData;
-  items: OrderItemData[];
-  discount?: number;
-  tax?: number;
+  customer: {
+    name: string;
+    phone: string;
+    email: string;
+  };
+  products: OrderItemData[];
+  address: {
+    name: string;
+    phone: string;
+    email: string;
+    pincode: string;
+    state: string;
+    city: string;
+    addressLine: string;
+  };
 }
 
 export interface OrderResponseApi {
+  orderId: string;
   _id: string;
-  orderNumber: string;
-  status: "PENDING" | "CONFIRMED" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED";
   orderType: string;
-  source: string;
-  items: OrderItemData[];
-  grandTotal: number;
+  status: string;
+  paymentStatus: string;
 }
 
 /**

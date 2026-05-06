@@ -196,7 +196,7 @@ export default function WomenswearSection() {
       <QuoteStrip text="Every weave is a heartbeat, every thread a story of ancient grace." />
 
       <CollectionBanner
-        src="https://images.unsplash.com/photo-1599948058210-7a2ecbd3c910?w=2000&q=80"
+        src="/womens_western_luxury.webp"
         label="Bridal Couture"
         title="The Wedding Edit"
         href="/category/weddings"
@@ -211,7 +211,7 @@ export default function WomenswearSection() {
       />
 
       <CollectionBanner
-        src="https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=2000&q=80"
+        src="/womens_western_luxury.webp"
         label="Contemporary Silhouette"
         title="Indo-Western Fusion"
         href="/category/indo-western"

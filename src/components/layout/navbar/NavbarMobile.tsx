@@ -34,6 +34,11 @@ export default function NavbarMobile({
   
   // Track expanded state for any item by its label
   const [expandedStates, setExpandedStates] = useState<Record<string, boolean>>({});
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
@@ -206,7 +211,7 @@ export default function NavbarMobile({
             onClick={() => { handleClose(); openWishlist(); }}
           >
             <Heart size={20} />
-            {wishlistCount > 0 && (
+            {isMounted && wishlistCount > 0 && (
               <span className="absolute top-0 right-0 w-4 h-4 rounded-full bg-black text-white text-[9px] flex items-center justify-center leading-none">
                 {wishlistCount}
               </span>
@@ -219,7 +224,7 @@ export default function NavbarMobile({
             onClick={() => { handleClose(); openCart(); }}
           >
             <ShoppingBag size={20} />
-            {totalItems > 0 && (
+            {isMounted && totalItems > 0 && (
               <span className="absolute top-0 right-0 w-4 h-4 rounded-full bg-black text-white text-[9px] flex items-center justify-center leading-none">
                 {totalItems}
               </span>

@@ -23,10 +23,10 @@ const FOOTER_LINKS = {
     { label: "Weddings", href: "/category/weddings" },
   ],
   "Lalit Dalmia": [
-    { label: "History", href: "#" },
-    { label: "Social Initiative", href: "#" },
-    { label: "Craft Preservation", href: "#" },
-    { label: "Art of Retail", href: "#" },
+    { label: "History", href: "/world-of-lalit-dalima/history" },
+    { label: "Social Initiative", href: "/world-of-lalit-dalima/social-initiative" },
+    { label: "Craft Preservation", href: "/world-of-lalit-dalima/craft-preservation" },
+    { label: "Art of Retail", href: "/world-of-lalit-dalima/art-of-retail" },
   ],
   "Client Services": [
     { label: "Privacy Policy", href: "/policies/privacy-policy" },
@@ -139,7 +139,7 @@ export default function Footer() {
                 key={s.label}
                 href={s.href}
                 target="_blank"
-                className="w-10 h-10 border border-white/20 flex items-center justify-center text-white hover:border-white transition duration-300"
+                className="w-10 h-10 border border-black/10 flex items-center justify-center text-black hover:border-black transition duration-300"
               >
                 <Icon size={16} />
               </a>
@@ -152,7 +152,7 @@ export default function Footer() {
           <p className="text-[12px] tracking-[0.2em] uppercase text-black text-center">
             © {new Date().getFullYear()} Lalit Dalmia. All rights reserved.
           </p>
-          <p className="text-[10px] tracking-[0.2em] uppercase text-white font-medium text-center">
+          <p className="text-[10px] tracking-[0.2em] uppercase text-black/60 font-medium text-center">
             created by Ankit Singh & Lokender Chauhan
           </p>
         </div>

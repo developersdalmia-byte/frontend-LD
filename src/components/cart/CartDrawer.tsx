@@ -5,6 +5,8 @@ import OptimizedImage from "@/components/shared/OptimizedImage";
 import Link from "next/link";
 import { X, Minus, Plus, ShoppingBag, ArrowRight } from "lucide-react";
 import { Playfair_Display } from "next/font/google";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -15,13 +17,24 @@ const playfair = Playfair_Display({
 export default function CartDrawer() {
   const { items, isOpen, closeCart, removeFromCart, updateQty, totalPrice, totalItems } =
     useCart();
+  const { isLoggedIn, openLoginModal } = useAuth();
+  const router = useRouter();
+
+  const handleCheckout = () => {
+    closeCart();
+    if (isLoggedIn) {
+      router.push("/checkout");
+    } else {
+      openLoginModal("/checkout");;
+    }
+  };
 
   return (
     <>
       {/* Backdrop */}
       <div
         onClick={closeCart}
-        className={`fixed inset-0 z-40 bg-black/30 backdrop-blur-sm transition-opacity duration-500 ${
+        className={`fixed inset-0 z-40 bg-black/60 backdrop-blur-[2px] transition-opacity duration-700 ${
           isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
       />
@@ -34,14 +47,13 @@ export default function CartDrawer() {
       >
         {/* Header */}
         <div className="flex items-center justify-between px-5 sm:px-8 py-6 border-b border-[#e8e4de]">
-          <div className="flex items-center gap-3">
-            <ShoppingBag size={16} className="text-black" />
-            <span className={`${playfair.className} text-[11px] tracking-[0.4em] uppercase text-black`}>
+          <div className="flex items-center gap-4">
+            <span className={`${playfair.className} text-[10px] tracking-[0.5em] uppercase text-black font-medium`}>
               Your Selection
             </span>
             {totalItems > 0 && (
-              <span className="w-5 h-5 rounded-full bg-black text-white text-[10px] flex items-center justify-center">
-                {totalItems}
+              <span className="text-[10px] text-[#9c9690] tracking-widest font-light">
+                ({totalItems})
               </span>
             )}
           </div>
@@ -56,21 +68,24 @@ export default function CartDrawer() {
         {/* Items */}
         <div className="flex-1 overflow-y-auto px-5 sm:px-8 py-5 space-y-6">
           {items.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center gap-5 pt-24">
-              <ShoppingBag size={36} className="text-[#c8c2b8]" strokeWidth={1} />
-              <div>
-                <p className={`${playfair.className} text-lg italic text-[#9c9690]`}>
-                  Your cart is empty
-                </p>
-                <p className="text-[11px] tracking-[0.2em] uppercase text-[#b8b0a6] mt-2">
-                  Discover the collection
-                </p>
+            <div className="flex flex-col items-center justify-center h-full text-center px-4">
+              <div className="mb-8 opacity-20">
+                <ShoppingBag size={40} strokeWidth={0.75} />
               </div>
+              <p className={`${playfair.className} text-xl italic text-black/80 mb-2`}>
+                Your cart is empty
+              </p>
+              <p className="text-[9px] tracking-[0.4em] uppercase text-[#9c9690] mb-10 max-w-[200px] leading-loose">
+                Explore our latest couture collections
+              </p>
               <button
                 onClick={closeCart}
-                className={`${playfair.className} mt-4 text-[10px] tracking-[0.35em] uppercase border border-black px-8 py-3 hover:bg-black hover:text-white transition-all duration-300`}
+                className="group relative overflow-hidden border border-black px-12 py-4 transition-colors duration-500"
               >
-                Continue Shopping
+                <span className={`${playfair.className} relative z-10 text-[10px] tracking-[0.4em] uppercase text-black group-hover:text-white`}>
+                  Continue Shopping
+                </span>
+                <div className="absolute inset-0 bg-black translate-y-full transition-transform duration-500 group-hover:translate-y-0" />
               </button>
             </div>
           ) : (
@@ -156,14 +171,13 @@ export default function CartDrawer() {
               Taxes & shipping calculated at checkout
             </p>
 
-            <Link
-              href="/checkout"
-              onClick={closeCart}
+            <button
+              onClick={handleCheckout}
               className={`${playfair.className} w-full bg-black text-white text-[11px] tracking-[0.35em] uppercase py-4 flex items-center justify-center gap-3 hover:bg-[#222] transition-colors duration-300`}
             >
               Proceed to Checkout
               <ArrowRight size={14} />
-            </Link>
+            </button>
 
             <button
               onClick={closeCart}

@@ -90,16 +90,27 @@ export async function getProducts(params: {
   subcategory?: string;
   occasion?: string;
   search?: string;
+  sort?: string;
+  availability?: string;
 } = {}): Promise<{ products: Product[]; hasMore: boolean; total: number }> {
-  const { page = 1, limit = 20, category, subcategory, occasion, search } = params;
+  const { page = 1, limit = 20, category, subcategory, occasion, search, sort, availability } = params;
+
+  // Map frontend main categories to backend expected mainCategory slugs
+  const mapMainCategory = (cat?: string) => {
+    if (cat === "womenswear") return "womens-wear";
+    if (cat === "menswear") return "mens-wear";
+    return cat;
+  };
 
   const query = new URLSearchParams({
     page: String(page),
     limit: String(limit),
-    ...(category && { category }),
-    ...(subcategory && { subcategory }),
+    ...(category && { mainCategory: mapMainCategory(category) }),
+    ...(subcategory && { category: subcategory }), // frontend subcategory = backend category
     ...(occasion && { occasion }),
     ...(search && { search }),
+    ...(sort && { sort }),
+    ...(availability && { availability }),
   });
 
   const cacheKey = query.toString();

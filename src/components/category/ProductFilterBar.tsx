@@ -86,52 +86,59 @@ export default function ProductFilterBar({
     setMobileFiltersOpen(false);
   };
 
+  // Map frontend main categories to backend expected mainCategory slugs
+  const mapMainCategory = (cat?: string) => {
+    if (cat === "womenswear") return "womens-wear";
+    if (cat === "menswear") return "mens-wear";
+    return cat;
+  };
+
   // Find subcategories for the current main category
-  const currentCategoryData = categories.find(c => c.slug === currentMainCategory);
+  const mappedCategory = mapMainCategory(currentMainCategory);
+  const currentCategoryData = categories.find(c => c.slug === mappedCategory);
   const subcategories = currentCategoryData?.subcategories || [];
 
   // Breadcrumbs logic
   const mainCategoryLabel = currentMainCategory?.split("-").join(" ").toUpperCase() || "COLLECTIONS";
-  const subCategoryLabel = subcategories.find(s => s.slug === filters.subcategory)?.name || "";
+  const subCategoryLabel = subcategories.find((s: any) => s.slug === filters.subcategory)?.name || "";
 
   return (
     <div 
       className={`w-full bg-white z-40 transition-all duration-500 ease-in-out border-b border-[#f0ede8] ${
-        showNav ? "sticky top-[110px] md:top-[140px]" : "sticky top-0"
+        showNav ? "sticky top-[110px] md:top-[130px]" : "sticky top-0"
       }`}
     >
       <div className="max-w-[1600px] mx-auto px-4 md:px-10">
         
         {/* TOP ROW: BREADCRUMBS & READY TO SHIP */}
-        <div className="flex items-center justify-between py-3 border-b border-[#f0ede8]">
-          <div className="flex items-center gap-2 text-[10px] tracking-[0.2em] uppercase text-[#9c9690]">
-            <Link href="/" className="hover:text-black transition-colors">Home</Link>
-            <span>|</span>
-            <span className={!subCategoryLabel ? "text-black font-medium" : ""}>
+        <div className="flex items-center justify-between py-4 border-b border-[#f0ede8]">
+          <div className="flex items-center gap-3 text-[9px] tracking-[0.3em] uppercase text-[#9c9690]">
+            <Link href="/" className="hover:text-black transition-colors duration-300">Home</Link>
+            <span className="opacity-40">/</span>
+            <span className={!subCategoryLabel ? "text-black font-semibold" : "hover:text-black transition-colors duration-300"}>
               {mainCategoryLabel}
             </span>
             {subCategoryLabel && (
               <>
-                <span>|</span>
-                <span className="text-black font-medium">{subCategoryLabel}</span>
+                <span className="opacity-40">/</span>
+                <span className="text-black font-semibold tracking-[0.35em]">{subCategoryLabel}</span>
               </>
             )}
           </div>
 
-          <div className="hidden md:flex items-center gap-3">
-            <span className="text-[10px] tracking-[0.2em] uppercase text-[#6b6560]">Ready To Ship</span>
-            <button 
-              onClick={() => handleFilterSelect("readyToShip", !filters.readyToShip)}
-              className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-300 focus:outline-none ${
-                filters.readyToShip ? "bg-black" : "bg-[#e8e4de]"
+          <div className="hidden md:flex items-center gap-4 group cursor-pointer" onClick={() => handleFilterSelect("readyToShip", !filters.readyToShip)}>
+            <span className="text-[9px] tracking-[0.3em] uppercase text-[#6b6560] group-hover:text-black transition-colors duration-300">Ready To Ship</span>
+            <div 
+              className={`relative inline-flex h-4 w-8 items-center rounded-full transition-all duration-500 ${
+                filters.readyToShip ? "bg-[#c5a059]" : "bg-[#e8e4de]"
               }`}
             >
               <span
-                className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform duration-300 ${
-                  filters.readyToShip ? "translate-x-5" : "translate-x-1"
+                className={`inline-block h-2.5 w-2.5 transform rounded-full bg-white shadow-sm transition-transform duration-500 ${
+                  filters.readyToShip ? "translate-x-4.5" : "translate-x-1"
                 }`}
               />
-            </button>
+            </div>
           </div>
         </div>
 
@@ -139,11 +146,11 @@ export default function ProductFilterBar({
         <div className="flex items-center justify-between h-14 md:h-16">
           
           {/* LEFT: DROP DOWN FILTERS */}
-          <div className="hidden md:flex items-center gap-10">
+          <div className="hidden md:flex items-center gap-12">
             {/* Category Dropdown */}
             <div className="group relative">
-              <button className="flex items-center gap-2 text-[11px] tracking-[0.2em] uppercase text-black hover:text-[#6b6560] transition-colors font-medium">
-                Category <ChevronDown size={14} className="group-hover:rotate-180 transition-transform duration-300" />
+              <button className="flex items-center gap-2 text-[10px] tracking-[0.3em] uppercase text-black hover:text-[#c5a059] transition-all duration-300 font-semibold group-hover:italic">
+                Category <ChevronDown size={12} className="group-hover:rotate-180 transition-transform duration-500 opacity-60" />
               </button>
               <div className="absolute top-full left-0 pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
                 <div className="bg-white border border-[#e8e4de] p-6 flex flex-col gap-4 shadow-2xl min-w-[220px]">
@@ -165,8 +172,8 @@ export default function ProductFilterBar({
 
             {/* Price Dropdown */}
             <div className="group relative">
-              <button className="flex items-center gap-2 text-[11px] tracking-[0.2em] uppercase text-black hover:text-[#6b6560] transition-colors font-medium">
-                Price <ChevronDown size={14} className="group-hover:rotate-180 transition-transform duration-300" />
+              <button className="flex items-center gap-2 text-[10px] tracking-[0.3em] uppercase text-black hover:text-[#c5a059] transition-all duration-300 font-semibold group-hover:italic">
+                Price <ChevronDown size={12} className="group-hover:rotate-180 transition-transform duration-500 opacity-60" />
               </button>
               <div className="absolute top-full left-0 pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
                 <div className="bg-white border border-[#e8e4de] p-6 flex flex-col gap-4 shadow-2xl min-w-[220px]">
@@ -181,8 +188,8 @@ export default function ProductFilterBar({
 
             {/* Occasion Dropdown */}
             <div className="group relative">
-              <button className="flex items-center gap-2 text-[11px] tracking-[0.2em] uppercase text-black hover:text-[#6b6560] transition-colors font-medium">
-                Occasion <ChevronDown size={14} className="group-hover:rotate-180 transition-transform duration-300" />
+              <button className="flex items-center gap-2 text-[10px] tracking-[0.3em] uppercase text-black hover:text-[#c5a059] transition-all duration-300 font-semibold group-hover:italic">
+                Occasion <ChevronDown size={12} className="group-hover:rotate-180 transition-transform duration-500 opacity-60" />
               </button>
               <div className="absolute top-full left-0 pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
                 <div className="bg-white border border-[#e8e4de] p-6 flex flex-col gap-4 shadow-2xl min-w-[220px]">
@@ -203,8 +210,8 @@ export default function ProductFilterBar({
 
             {/* Size Dropdown */}
             <div className="group relative">
-              <button className="flex items-center gap-2 text-[11px] tracking-[0.2em] uppercase text-black hover:text-[#6b6560] transition-colors font-medium">
-                Size <ChevronDown size={14} className="group-hover:rotate-180 transition-transform duration-300" />
+              <button className="flex items-center gap-2 text-[10px] tracking-[0.3em] uppercase text-black hover:text-[#c5a059] transition-all duration-300 font-semibold group-hover:italic">
+                Size <ChevronDown size={12} className="group-hover:rotate-180 transition-transform duration-500 opacity-60" />
               </button>
               <div className="absolute top-full left-0 pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
                 <div className="bg-white border border-[#e8e4de] p-6 grid grid-cols-3 gap-2 shadow-2xl min-w-[180px]">

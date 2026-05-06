@@ -17,6 +17,7 @@ const playfair = Playfair_Display({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   display: "swap",
+  variable: "--font-playfair",
 });
 
 export const metadata: Metadata = {
@@ -27,8 +28,8 @@ export const metadata: Metadata = {
   description:
     "Lalit Dalima is a luxury Indian fashion label rooted in craft, heritage, and artisanal excellence.",
   icons: {
-    icon: "https://api.lalitdalmia.com/uploads/websiteImages/Logo/Logo LD BLK.webp",
-    apple: "https://api.lalitdalmia.com/uploads/websiteImages/Logo/Logo LD BLK.webp",
+    icon: "https://api.lalitdalmia.com/uploads/websiteImages/Logo/LD-LOGO-BLK.webp",
+    apple: "https://api.lalitdalmia.com/uploads/websiteImages/Logo/LD-LOGO-BLK.webp",
   },
 };
 
@@ -45,7 +46,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${playfair.className} bg-white text-black`}>
+      <body className={`${playfair.variable} ${playfair.className} bg-white text-black`}>
         <WishlistProvider>
           <CartProvider>
             <AuthProvider>
@@ -67,6 +68,11 @@ export default function RootLayout({
 
               {/* Footer */}
               <Footer />
+              
+              <script
+                src="https://checkout.razorpay.com/v1/checkout.js"
+                async
+              ></script>
 
             </AuthProvider>
           </CartProvider>

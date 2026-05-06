@@ -65,10 +65,10 @@ export default function ProductCard({
             alt={name}
             fill
             className={`
-              object-cover transition-all duration-700 ease-in-out
+              object-cover transition-all duration-1000 ease-in-out
               ${hoverImage
-                ? hovered ? "opacity-0 scale-[1.03]" : "opacity-100 scale-100"
-                : "group-hover:scale-[1.04]"
+                ? hovered ? "opacity-0 scale-105" : "opacity-100 scale-100"
+                : "group-hover:scale-105"
               }
             `}
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
@@ -81,111 +81,71 @@ export default function ProductCard({
               alt={`${name} — alternate view`}
               fill
               className={`
-                object-cover absolute inset-0 transition-all duration-700 ease-in-out
-                ${hovered ? "opacity-100 scale-[1.03]" : "opacity-0 scale-100"}
+                object-cover absolute inset-0 transition-all duration-1000 ease-in-out
+                ${hovered ? "opacity-100 scale-105" : "opacity-0 scale-100"}
               `}
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             />
           )}
 
-          {/* ── Badges (top left) ── */}
-          <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
+          {/* ── Badges ── */}
+          <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
             {isNew && (
-              <span className="bg-black text-white text-[8px] tracking-[0.25em] uppercase px-2.5 py-1">
+              <span className="bg-black text-white text-[7px] tracking-[0.3em] uppercase px-2 py-1">
                 New
               </span>
             )}
-            {isMadeToOrder && (
-              <span className="bg-white text-black text-[8px] tracking-[0.2em] uppercase px-2.5 py-1 border border-black/10">
-                Made to Order
-              </span>
-            )}
             {isSoldOut && (
-              <span className="bg-[#e5e0d8] text-[#6b6560] text-[8px] tracking-[0.2em] uppercase px-2.5 py-1">
+              <span className="bg-[#e5e0d8] text-[#6b6560] text-[7px] tracking-[0.3em] uppercase px-2 py-1">
                 Sold Out
               </span>
             )}
-          </div>
-
-          {/* ── Wishlist button ──
-               Always visible on mobile (opacity-100), hover-only on desktop */}
-          {id && (
-            <button
-              onClick={handleWishlist}
-              className={`
-                absolute top-3 right-3 z-10 w-8 h-8 flex items-center justify-center
-                transition-opacity duration-300
-                ${wishlisted
-                  ? "opacity-100"
-                  : "opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
-                }
-              `}
-              aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
-            >
-              <Heart
-                size={18}
-                className={`transition-all duration-200 drop-shadow-sm ${
-                  wishlisted
-                    ? "fill-black stroke-black"
-                    : "stroke-white fill-none [filter:drop-shadow(0_1px_2px_rgba(0,0,0,0.5))]"
-                }`}
-              />
-            </button>
-          )}
-
-          {/* ── Bottom CTA strip — slides up on hover ── */}
-          <div
-            className={`
-              absolute bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm
-              flex items-center justify-center py-3
-              transition-transform duration-300 ease-in-out
-              ${hovered ? "translate-y-0" : "translate-y-full"}
-            `}
-          >
-            <span
-              className={`${playfair.className} text-[11px] tracking-[0.3em] uppercase text-black font-medium`}
-            >
-              {isSoldOut ? "Notify Me" : "View Details"}
-            </span>
           </div>
         </div>
       </div>
 
       {/* ── Text block ── */}
-      <div className="mt-3 px-0.5">
-        {category && (
-          <p className="text-[9px] tracking-[0.3em] uppercase text-[#9c9690] mb-1">
-            {category}
-          </p>
-        )}
+      <div className="mt-4 px-0.5 space-y-1.5">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex-1">
+            {category && (
+              <p className="text-[9px] tracking-[0.25em] uppercase text-[#c5a059] font-semibold mb-1">
+                {category}
+              </p>
+            )}
 
-        <h3
-          className={`
-            ${playfair.className}
-            text-[13px] sm:text-[15px] leading-snug text-black
-            transition-all duration-300 font-normal
-            ${hovered ? "italic" : "not-italic"}
-          `}
-        >
-          {name}
-        </h3>
+            <h3 className={`${playfair.className} text-[11px] sm:text-[13px] tracking-[0.1em] text-black uppercase font-medium leading-relaxed`}>
+              {name}
+            </h3>
+          </div>
 
-        <div className="flex items-center gap-3 mt-1.5">
-          <span
-            className={`
-              ${playfair.className}
-              text-[12px] sm:text-[13px] text-[#3d3a36] font-medium
-              ${isSoldOut ? "opacity-40 line-through" : ""}
-            `}
-          >
+          {/* Wishlist button */}
+          {id && (
+            <button
+              onClick={handleWishlist}
+              className="mt-0.5 transition-transform hover:scale-110 active:scale-95"
+              aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
+            >
+              <Heart
+                size={16}
+                strokeWidth={1.2}
+                className={`transition-colors duration-300 ${
+                  wishlisted ? "fill-black stroke-black" : "stroke-black fill-none"
+                }`}
+              />
+            </button>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2 pt-0.5">
+          <span className={`${playfair.className} text-[15px] text-black font-medium`}>
             {price}
           </span>
-          <span
-            className={`
-              flex-1 h-px bg-[#e0dbd4] transition-all duration-500
-              ${hovered ? "opacity-100" : "opacity-0"}
-            `}
-          />
+          {isMadeToOrder && (
+            <span className="text-[8px] tracking-widest text-[#9c9690] uppercase">
+              · Made to Order
+            </span>
+          )}
         </div>
       </div>
     </>

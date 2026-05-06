@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Menu, ShoppingBag, Search } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 import { useNavbarScroll } from "./useNavbarScroll";
@@ -14,23 +14,31 @@ const SearchOverlay = dynamic(() => import("./SearchOverlay"));
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Navbar() {
-  const { showNav, hasScrolled: scrollState } = useNavbarScroll();
+  const { showNav: _showNav, hasScrolled: scrollState } = useNavbarScroll();
   const pathname = usePathname();
 
-  const isTransparentPage = pathname === "/" || pathname.startsWith("/category/");
+  const isTransparentPage = pathname === "/" || pathname.startsWith("/category/") || pathname.startsWith("/world-of-lalit-dalima");
+  const isCheckoutPage = pathname === "/checkout";
   const hasScrolled = scrollState || !isTransparentPage;
+  const showNav = isCheckoutPage ? true : _showNav;
 
   const { openCart, totalItems } = useCart();
+  const { isLoginModalOpen, openLoginModal, closeLoginModal } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [loginOpen, setLoginOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   return (
     <>
       {/* ── Login Modal ── */}
-      <LoginModal isOpen={loginOpen} onClose={() => setLoginOpen(false)} />
+      <LoginModal isOpen={isLoginModalOpen} onClose={closeLoginModal} />
 
       {/* ── Search Overlay ── */}
       <SearchOverlay isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
@@ -63,7 +71,7 @@ export default function Navbar() {
         <div className="hidden md:block relative py-4">
           <NavbarDesktop
             hasScrolled={hasScrolled}
-            onLoginOpen={() => setLoginOpen(true)}
+            onLoginOpen={openLoginModal}
             onSearchOpen={() => setSearchOpen(true)}
           />
         </div>
@@ -98,7 +106,7 @@ export default function Navbar() {
           <div className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 mt-2 flex items-center justify-center">
             <Link href="/" className="relative block w-[150px] h-[155px]">
               <Image
-                src="/Logo/Logo LD BLK.webp"
+                src="https://api.lalitdalmia.com/uploads/websiteImages/Logo/LD-LOGO-BLK.webp"
                 alt="Lalit Dalmia"
                 fill
                 sizes="150px"
@@ -107,7 +115,7 @@ export default function Navbar() {
                   }`}
               />
               <Image
-                src="https://api.lalitdalmia.com/uploads/websiteImages//Logo/Logo%20LD%20WHT.webp"
+                src="https://api.lalitdalmia.com/uploads/websiteImages/Logo/LD-LOGO-white.webp"
                 alt="Lalit Dalmia"
                 fill
                 sizes="150px"
@@ -134,7 +142,7 @@ export default function Navbar() {
                 strokeWidth={1.5}
                 className={`transition-colors duration-300 ${hasScrolled ? "text-black" : "text-white group-hover:text-black"}`}
               />
-              {totalItems > 0 && (
+              {isMounted && totalItems > 0 && (
                 <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-black text-white text-[8px] flex items-center justify-center leading-none font-bold">
                   {totalItems}
                 </span>
@@ -150,7 +158,7 @@ export default function Navbar() {
         onClose={() => setMobileOpen(false)}
         onLoginOpen={() => {
           setMobileOpen(false);
-          setLoginOpen(true);
+          openLoginModal();
         }}
         onSearchOpen={() => {
           setMobileOpen(false);

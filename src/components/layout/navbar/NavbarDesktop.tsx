@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Search, Heart, ShoppingBag, User, LogOut } from "lucide-react";
@@ -26,7 +26,12 @@ export default function NavbarDesktop({ hasScrolled, onLoginOpen, onSearchOpen }
 
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [isHovered, setIsHovered] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const isWhite = hasScrolled || isHovered;
 
@@ -65,30 +70,30 @@ export default function NavbarDesktop({ hasScrolled, onLoginOpen, onSearchOpen }
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* ================= TOP ROW ================= */}
-      <div className="relative flex items-center justify-between px-8 h-[80px]">
+      <div className="relative flex items-center justify-between px-8 h-[70px]">
 
         {/* LEFT SPACER (same width as right icons) */}
         <div className="w-[140px]" />
 
         {/* CENTER LOGO — both variants rendered, toggled via opacity to prevent blur */}
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50">
-          <Link href="/" className="relative block h-[130px] w-[160px]">
+          <Link href="/" className="relative block h-[110px] w-[140px]">
             <Image
               src="https://api.lalitdalmia.com/uploads/websiteImages/Logo/LD-LOGO-BLK.webp"
               alt="Lalit Dalmia Logo"
-              width={160}
-              height={100}
+              width={140}
+              height={80}
               priority
-              className={`absolute inset-0 h-[130px] w-auto object-contain transition-opacity duration-300 ${isWhite ? "opacity-100" : "opacity-0"
+              className={`absolute inset-0 h-[110px] w-auto object-contain transition-opacity duration-300 ${isWhite ? "opacity-100" : "opacity-0"
                 }`}
             />
             <Image
               src="https://api.lalitdalmia.com/uploads/websiteImages/Logo/LD-LOGO-white.webp"
               alt="Lalit Dalmia Logo"
-              width={160}
-              height={100}
+              width={140}
+              height={80}
               priority
-              className={`absolute inset-0 h-[130px] w-auto object-contain transition-opacity duration-300 ${isWhite ? "opacity-0" : "opacity-100"
+              className={`absolute inset-0 h-[110px] w-auto object-contain transition-opacity duration-300 ${isWhite ? "opacity-0" : "opacity-100"
                 }`}
             />
           </Link>
@@ -140,7 +145,7 @@ export default function NavbarDesktop({ hasScrolled, onLoginOpen, onSearchOpen }
               className={`transition-colors duration-300 ${iconColor}`}
               size={20}
             />
-            {wishlistCount > 0 && (
+            {isMounted && wishlistCount > 0 && (
               <span className="absolute -top-2 -right-2 w-4 h-4 rounded-full bg-black text-white text-[9px] flex items-center justify-center">
                 {wishlistCount}
               </span>
@@ -157,7 +162,7 @@ export default function NavbarDesktop({ hasScrolled, onLoginOpen, onSearchOpen }
               className={`transition-colors duration-300 ${iconColor}`}
               size={20}
             />
-            {totalItems > 0 && (
+            {isMounted && totalItems > 0 && (
               <span className="absolute -top-2 -right-2 w-4 h-4 rounded-full bg-black text-white text-[9px] flex items-center justify-center">
                 {totalItems}
               </span>
@@ -183,7 +188,7 @@ export default function NavbarDesktop({ hasScrolled, onLoginOpen, onSearchOpen }
       <nav
         className={`relative flex justify-center border-t ${borderColor} transition-colors duration-300`}
       >
-        <ul className="flex gap-10 py-3 text-xs tracking-[0.15em] uppercase">
+        <ul className="flex gap-8 py-3 text-[10px] tracking-[0.2em] uppercase">
           {NAV_ITEMS.map((item) => {
             const isActive = activeMenu === item.label;
             const hasChildren =

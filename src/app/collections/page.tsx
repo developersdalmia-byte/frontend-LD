@@ -13,7 +13,7 @@ export default function CollectionsPage() {
   };
 
   return (
-    <main className="pt-[100px]">
+    <main className="pt-[120px] md:pt-[180px]">
       <CategoryHero 
         title={categoryData.title}
         banner={categoryData.banner}
@@ -23,7 +23,7 @@ export default function CollectionsPage() {
       
       {/* Passing empty string to fetch all products */}
       <Suspense fallback={<div className="min-h-screen bg-[#fcfbf9]" />}>
-        <FilteredProductGrid mainCategorySlug="" />
+        <FilteredProductGrid />
       </Suspense>
     </main>
   );

@@ -40,7 +40,7 @@ export default async function ProductRoutePage({ params }: PageProps) {
   }
 
   return (
-    <div className="pt-[90px]">
+    <div className="pt-[140px] md:pt-[220px]">
       <ProductDetailPage product={product!} />
     </div>
   );
