@@ -57,6 +57,13 @@ export default function StoreLocatorPage() {
             "Experience the tactile luxury of our collections at our physical boutiques. Each space is designed to be an immersive journey into the world of Lalit Dalmia."
           </div>
 
+          <div className="pt-4 animate-in fade-in  text-center inline-center  mb-5 slide-in-from-bottom-4 duration-1000 delay-500">
+              <h2 className={`${playfair.className} text-3xl md:text-5xl text-black tracking-tight font-normal italic`}>
+                Lalit Dalmia Fashion Museum
+              </h2>
+              <div className="w-24 h-[1px] mx-auto mt-6" />
+            </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24">
 
             {/* LEFT: STORE LISTING */}
@@ -110,18 +117,6 @@ export default function StoreLocatorPage() {
               <div className="absolute bottom-0 left-0 w-24 h-24 border-b border-l border-gray-100 pointer-events-none" />
             </div>
 
-          </div>
-
-          {/* FINAL NOTE */}
-          <div className="pt-32 border-t border-gray-50 text-center">
-            <p className="text-[10px] tracking-[0.4em] uppercase text-gray-300 mb-8">
-              © LALIT DALMIA. All rights reserved.
-            </p>
-            <div className="flex justify-center gap-8">
-              <div className="w-1.5 h-1.5 rounded-full bg-gray-100" />
-              <div className="w-1.5 h-1.5 rounded-full bg-gray-200" />
-              <div className="w-1.5 h-1.5 rounded-full bg-gray-100" />
-            </div>
           </div>
         </div>
       </section>
