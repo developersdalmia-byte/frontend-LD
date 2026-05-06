@@ -9,7 +9,7 @@ export default function ArtOfRetailPage() {
       <section className="relative h-screen flex flex-col items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-black/40 z-10" />
         <img
-          src="https://api.lalitdalmia.com/uploads/websiteImages/images/retail-hero-editorial.webp"
+          src="/store_result.avif"
           alt="The Entrance to Heritage"
           className="absolute inset-0 w-full h-full object-cover brightness-75 scale-105 animate-slow-zoom"
         />
