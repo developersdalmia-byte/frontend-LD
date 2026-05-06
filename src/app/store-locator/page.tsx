@@ -14,19 +14,19 @@ const inter = Inter({
 
 const STORES = [
   {
-    name: "Pitampura Store",
+    name: "Lalit Dalmia Pitampura Fashion Museum",
     address: "Shop No-4, opposite Metro Pillar No-341, Kohat Enclave, Pitampura, Delhi, 110034",
     phone: "+91 98104 46103",
     hours: "11:00 AM — 08:30 PM",
   },
   {
-    name: "Lado Sarai Flagship , Adjacent to Qutub Minar",
+    name: "Lalit Dalmia Couture Haveli | Adjacent to Qutub Minar",
     address: "F - 25/2, near Masjid, Seth Sarai, Lado Sarai, New Delhi, Delhi 110030",
     phone: "+91 98104 46103",
     hours: "11:00 AM — 08:00 PM",
   },
   {
-    name: "Chandni Chowk Store",
+    name: "Lalit Dalmia Chandni Chowk Sahi Kothi",
     address: "Lalit Dalmia Building, Chandni Chowk Rd, next to Haldiram, Chandni Chowk, Delhi, 110006",
     phone: "+91 98104 46103",
     hours: "11:00 AM — 08:30 PM",
