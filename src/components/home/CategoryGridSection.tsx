@@ -15,7 +15,7 @@ const CATEGORIES = [
   {
     title: "Sarees",
     href: "/products?category=womenswear&subcategory=saree",
-    image: "/saree-collection-main.webp",
+    image: "/saree_result.avif",
   },
   {
     title: "Gowns",
