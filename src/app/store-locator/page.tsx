@@ -20,7 +20,7 @@ const STORES = [
     hours: "11:00 AM — 08:30 PM",
   },
   {
-    name: "Lado Sarai Flagship , Adjecent to Qutub Minar",
+    name: "Lado Sarai Flagship , Adjacent to Qutub Minar",
     address: "F - 25/2, near Masjid, Seth Sarai, Lado Sarai, New Delhi, Delhi 110030",
     phone: "+91 98104 46103",
     hours: "11:00 AM — 08:00 PM",
