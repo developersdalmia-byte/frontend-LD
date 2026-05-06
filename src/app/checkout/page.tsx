@@ -829,21 +829,21 @@ export default function CheckoutPage() {
           </div>
 
           {/* --- RIGHT: Exclusive Summary --- */}
-          <div className="w-full xl:w-[500px] sticky top-32 animate-in slide-in-from-right-12 duration-1000">
-            <div className="bg-white border border-[#eee9e2] shadow-[0_40px_100px_rgba(0,0,0,0.03)] p-10 md:p-14 rounded-sm relative overflow-hidden">
+          <div className="w-full xl:w-[500px] xl:sticky xl:top-32 animate-in slide-in-from-right-12 duration-1000">
+            <div className="bg-white border border-[#eee9e2] shadow-[0_40px_100px_rgba(0,0,0,0.03)] p-6 md:p-14 rounded-sm relative overflow-hidden">
               <div className="absolute top-0 right-0 w-32 h-32 bg-[#c5a059]/5 blur-[80px] rounded-full translate-x-16 -translate-y-16" />
               
-              <div className="flex items-center justify-between mb-12 pb-8 border-b border-[#faf8f5]">
-                <h2 className={`${playfair.className} text-3xl text-black font-normal`}>The Selection</h2>
-                <span className="text-[9px] tracking-[0.4em] uppercase text-[#c5a059] font-bold border border-[#c5a059]/20 px-4 py-1.5 rounded-full">
+              <div className="flex items-center justify-between mb-8 md:mb-12 pb-6 md:pb-8 border-b border-[#faf8f5]">
+                <h2 className={`${playfair.className} text-2xl md:text-3xl text-black font-normal`}>The Selection</h2>
+                <span className="text-[8px] md:text-[9px] tracking-[0.4em] uppercase text-[#c5a059] font-bold border border-[#c5a059]/20 px-3 md:px-4 py-1 md:py-1.5 rounded-full">
                   {totalItems} {totalItems === 1 ? 'Masterpiece' : 'Masterpieces'}
                 </span>
               </div>
 
-              <div className="max-h-[480px] overflow-y-auto space-y-12 pr-4 custom-scrollbar mb-12">
+              <div className="max-h-[480px] overflow-y-auto space-y-10 md:space-y-12 pr-2 md:pr-4 custom-scrollbar mb-10 md:mb-12">
                 {items.map((item, idx) => (
-                  <div key={`${item.id}-${item.size}`} className="flex gap-10 group" style={{ animationDelay: `${idx * 150}ms` }}>
-                    <div className="relative w-28 h-36 bg-[#f8f5f0] flex-shrink-0 overflow-hidden border border-[#eee9e2] rounded-sm">
+                  <div key={`${item.id}-${item.size}`} className="flex gap-6 md:gap-10 group" style={{ animationDelay: `${idx * 150}ms` }}>
+                    <div className="relative w-20 md:w-28 h-28 md:h-36 bg-[#f8f5f0] flex-shrink-0 overflow-hidden border border-[#eee9e2] rounded-sm">
                       <OptimizedImage
                         src={item.image}
                         alt={item.name}
@@ -853,11 +853,11 @@ export default function CheckoutPage() {
                       />
                     </div>
                     <div className="flex-1 flex flex-col justify-between py-2">
-                      <div className="space-y-4">
-                        <h4 className={`${playfair.className} text-xl text-black leading-tight tracking-tight group-hover:text-[#c5a059] transition-colors`}>
+                      <div className="space-y-3 md:space-y-4">
+                        <h4 className={`${playfair.className} text-lg md:text-xl text-black leading-tight tracking-tight group-hover:text-[#c5a059] transition-colors`}>
                           {item.name}
                         </h4>
-                        <div className="flex flex-wrap gap-x-10 gap-y-3">
+                        <div className="flex flex-wrap gap-x-6 md:gap-x-10 gap-y-2 md:gap-y-3">
                            <div className="space-y-1">
                               <span className="text-[8px] tracking-[0.3em] uppercase text-[#9c9690] block">Size</span>
                               <span className="text-[11px] text-black font-bold uppercase tracking-widest">{item.size}</span>
@@ -868,7 +868,7 @@ export default function CheckoutPage() {
                            </div>
                         </div>
                       </div>
-                      <p className={`${playfair.className} text-xl text-black font-medium`}>
+                      <p className={`${playfair.className} text-lg md:text-xl text-black font-medium`}>
                         ₹{(item.price).toLocaleString("en-IN")}.00
                       </p>
                     </div>
@@ -886,11 +886,11 @@ export default function CheckoutPage() {
                   <span className="text-[#22c55e] text-[10px] tracking-[0.2em] font-bold uppercase px-3 py-1 bg-[#f0f9f0] rounded-full">Complimentary</span>
                 </div>
                 
-                <div className="mt-12 pt-10 border-t-2 border-black">
+                <div className="mt-10 md:mt-12 pt-8 md:pt-10 border-t-2 border-black">
                   <div className="flex justify-between items-end">
                     <div className="space-y-2">
-                      <span className="text-[10px] tracking-[0.4em] uppercase text-[#c5a059] font-bold">Total Investment</span>
-                      <p className={`${playfair.className} text-4xl text-black font-medium tracking-tighter`}>₹{totalPrice.toLocaleString("en-IN")}.00</p>
+                      <span className="text-[9px] md:text-[10px] tracking-[0.4em] uppercase text-[#c5a059] font-bold">Total Investment</span>
+                      <p className={`${playfair.className} text-3xl md:text-4xl text-black font-medium tracking-tighter`}>₹{totalPrice.toLocaleString("en-IN")}.00</p>
                     </div>
                   </div>
                   <p className="text-[9px] text-[#9c9690] tracking-[0.2em] uppercase mt-4 italic font-medium">Inclusive of all local taxes and tailoring fees.</p>

@@ -94,28 +94,28 @@ export const NAV_ITEMS: NavItem[] = [
     ],
   },
   {
-    label: "WORLD OF LALIT DALIMA",
-    href: "/world-of-lalit-dalima",
+    label: "WORLD OF LALIT DALMIA",
+    href: "/world-of-lalit-dalmia",
     children: [
       {
         label: "Our Story",
-        href: "/world-of-lalit-dalima/history",
-        children: [{ label: "History", href: "/world-of-lalit-dalima/history" }],
+        href: "/world-of-lalit-dalmia/history",
+        children: [{ label: "History", href: "/world-of-lalit-dalmia/history" }],
       },
       {
         label: "Commitment",
-        href: "/world-of-lalit-dalima/social-initiative",
-        children: [{ label: "Social Initiative", href: "/world-of-lalit-dalima/social-initiative" }],
+        href: "/world-of-lalit-dalmia/social-initiative",
+        children: [{ label: "Social Initiative", href: "/world-of-lalit-dalmia/social-initiative" }],
       },
       {
         label: "Artisanship",
-        href: "/world-of-lalit-dalima/craft-preservation",
-        children: [{ label: "Craft Preservation", href: "/world-of-lalit-dalima/craft-preservation" }],
+        href: "/world-of-lalit-dalmia/craft-preservation",
+        children: [{ label: "Craft Preservation", href: "/world-of-lalit-dalmia/craft-preservation" }],
       },
       {
         label: "Retail",
-        href: "/world-of-lalit-dalima/art-of-retail",
-        children: [{ label: "Art of Retail", href: "/world-of-lalit-dalima/art-of-retail" }],
+        href: "/world-of-lalit-dalmia/art-of-retail",
+        children: [{ label: "Art of Retail", href: "/world-of-lalit-dalmia/art-of-retail" }],
       },
     ],
   },

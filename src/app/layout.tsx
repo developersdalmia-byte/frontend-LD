@@ -22,11 +22,11 @@ const playfair = Playfair_Display({
 
 export const metadata: Metadata = {
   title: {
-    default: "Lalit Dalima — Luxury Indian Fashion industry",
-    template: "%s | Lalit Dalima",
+    default: "Lalit Dalmia — Luxury Indian Fashion industry",
+    template: "%s | Lalit Dalmia",
   },
   description:
-    "Lalit Dalima is a luxury Indian fashion label rooted in craft, heritage, and artisanal excellence.",
+    "Lalit Dalmia is a luxury Indian fashion label rooted in craft, heritage, and artisanal excellence.",
   icons: {
     icon: "https://api.lalitdalmia.com/uploads/websiteImages/Logo/LD-LOGO-BLK.webp",
     apple: "https://api.lalitdalmia.com/uploads/websiteImages/Logo/LD-LOGO-BLK.webp",
