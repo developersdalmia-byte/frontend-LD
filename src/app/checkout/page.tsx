@@ -4,7 +4,7 @@ import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { createOrder, CreateOrderPayload } from "@/services/order.service";
 import { createRazorpayOrder, verifyPayment } from "@/services/payment.service";
-import { getAddresses, createAddress, Address } from "@/services/address.service";
+import { getAddresses, createAddress, updateAddress, deleteAddress, Address } from "@/services/address.service";
 import { Playfair_Display } from "next/font/google";
 import OptimizedImage from "@/components/shared/OptimizedImage";
 import Link from "next/link";
@@ -20,6 +20,8 @@ import {
   ShieldCheck,
   AlertCircle,
   Printer,
+  Edit2,
+  Trash2,
 } from "lucide-react";
 import Script from "next/script";
 import { useState, useEffect, useCallback } from "react";
@@ -72,6 +74,7 @@ export default function CheckoutPage() {
   const [savedAddresses, setSavedAddresses] = useState<Address[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [showNewAddressForm, setShowNewAddressForm] = useState(true);
+  const [editingAddressId, setEditingAddressId] = useState<string | null>(null);
 
   // --- Form State ---
   const [formData, setFormData] = useState<CheckoutFormData>({
@@ -132,7 +135,63 @@ export default function CheckoutPage() {
   const handleAddressSelect = (id: string) => {
     setSelectedAddressId(id);
     setShowNewAddressForm(false);
+    setEditingAddressId(null);
     setSubmitError(null);
+  };
+
+  const handleEditAddress = (e: React.MouseEvent, address: Address) => {
+    e.stopPropagation();
+    setEditingAddressId(address._id);
+    setFormData({
+      email: formData.email, // keep current email
+      firstName: address.fullName.split(" ")[0] || "",
+      lastName: address.fullName.split(" ").slice(1).join(" ") || "",
+      addressLine: address.line1 + (address.line2 ? `, ${address.line2}` : ""),
+      city: address.city,
+      state: address.state,
+      pincode: address.postalCode,
+      phone: address.phone,
+      saveAddress: true,
+    });
+    setShowNewAddressForm(true);
+    // Scroll to form
+    window.scrollTo({ top: document.querySelector('form')?.offsetTop ? document.querySelector('form')!.offsetTop - 200 : 0, behavior: 'smooth' });
+  };
+
+  const handleDeleteAddress = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    if (!confirm("Are you sure you want to delete this address?")) return;
+    try {
+      await deleteAddress(id);
+      setSavedAddresses((prev) => prev.filter((a) => a._id !== id));
+      if (selectedAddressId === id) {
+        setSelectedAddressId(null);
+        setShowNewAddressForm(true);
+      }
+    } catch (err) {
+      setSubmitError("Failed to delete address.");
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingAddressId(null);
+    setShowNewAddressForm(false);
+    // Reset form to user defaults if available
+    if (user) {
+      const [fName = "", ...lNameParts] = (user.name || "").split(" ");
+      setFormData((prev) => ({
+        ...prev,
+        firstName: fName,
+        lastName: lNameParts.join(" "),
+        phone: user.phone || "",
+        email: user.email || "",
+        addressLine: "",
+        city: "",
+        state: "",
+        pincode: "",
+        saveAddress: false,
+      }));
+    }
   };
 
   const processPayment = async (internalOrderId: string, addressData: any) => {
@@ -233,18 +292,35 @@ export default function CheckoutPage() {
           addressLine: formData.addressLine,
         };
 
-        // Optionally save address if requested
+        // Optionally save or update address if requested
         if (formData.saveAddress && isLoggedIn) {
-          await createAddress({
-            fullName: addressData.name,
-            phone: addressData.phone,
-            line1: formData.addressLine,
-            city: formData.city,
-            state: formData.state,
-            postalCode: formData.pincode,
-            country: "India",
-            label: "Saved Address",
-          }).catch(err => console.error("Could not save address for future use:", err));
+          if (editingAddressId) {
+            await updateAddress(editingAddressId, {
+              fullName: addressData.name,
+              phone: addressData.phone,
+              line1: formData.addressLine,
+              city: formData.city,
+              state: formData.state,
+              postalCode: formData.pincode,
+              label: "Saved Address",
+            }).catch((err: any) => console.error("Could not update address:", err));
+            setEditingAddressId(null);
+            // Reload addresses to reflect changes in the selection list
+            loadAddresses();
+          } else {
+            await createAddress({
+              fullName: addressData.name,
+              phone: addressData.phone,
+              line1: formData.addressLine,
+              city: formData.city,
+              state: formData.state,
+              postalCode: formData.pincode,
+              country: "India",
+              label: "Saved Address",
+            }).catch(err => console.error("Could not save address for future use:", err));
+            // Reload addresses to include the new one
+            loadAddresses();
+          }
         }
       }
 
@@ -676,13 +752,26 @@ export default function CheckoutPage() {
                         }`}
                       >
                         <div className="relative z-10 space-y-4">
-                          <div className="flex justify-between items-center">
+                          <div className="flex justify-between items-start">
                             <span className="text-[9px] tracking-[0.4em] uppercase text-[#c5a059] font-bold">
                                {addr.label || "Saved Destination"}
                             </span>
-                            {addr.isDefault && (
-                               <span className="text-[8px] bg-black text-white px-3 py-1 tracking-widest uppercase font-bold">Primary</span>
-                            )}
+                            <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                               <button 
+                                 onClick={(e) => handleEditAddress(e, addr)}
+                                 className="p-1.5 hover:bg-black hover:text-white rounded-full transition-colors"
+                                 title="Edit Address"
+                               >
+                                 <Edit2 size={12} />
+                               </button>
+                               <button 
+                                 onClick={(e) => handleDeleteAddress(e, addr._id)}
+                                 className="p-1.5 hover:bg-red-500 hover:text-white rounded-full transition-colors"
+                                 title="Delete Address"
+                               >
+                                 <Trash2 size={12} />
+                               </button>
+                            </div>
                           </div>
                           <div>
                             <p className="text-lg text-black font-medium leading-none mb-2">{addr.fullName}</p>
@@ -694,7 +783,10 @@ export default function CheckoutPage() {
                         </div>
                         
                         {selectedAddressId === addr._id && !showNewAddressForm && (
-                          <div className="absolute bottom-6 right-6">
+                          <div className="absolute bottom-6 right-6 flex items-center gap-2">
+                             {addr.isDefault && (
+                                <span className="text-[8px] bg-black text-white px-3 py-1 tracking-widest uppercase font-bold">Primary</span>
+                             )}
                             <CheckCircle size={24} className="text-[#22c55e] animate-in zoom-in duration-500" />
                           </div>
                         )}
@@ -716,8 +808,22 @@ export default function CheckoutPage() {
                 )}
 
                 {showNewAddressForm && (
-                  <form onSubmit={handleSubmit} className="space-y-12 animate-in slide-in-from-top-8 fade-in duration-1000">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                  <div className="space-y-12 animate-in slide-in-from-top-8 fade-in duration-1000">
+                    <div className="flex items-center justify-between">
+                       <h3 className={`${playfair.className} text-2xl text-black`}>
+                         {editingAddressId ? "Edit Address" : "New Shipping Destination"}
+                       </h3>
+                       {editingAddressId && (
+                         <button 
+                           onClick={handleCancelEdit}
+                           className="text-[9px] tracking-[0.3em] uppercase text-[#9c9690] hover:text-black transition-colors"
+                         >
+                           Cancel Edit
+                         </button>
+                       )}
+                    </div>
+                    <form onSubmit={handleSubmit} className="space-y-12">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                       <div className="relative group">
                         <label className="absolute left-0 -top-6 text-[9px] tracking-[0.3em] uppercase text-[#9c9690] group-focus-within:text-black">First Name</label>
                         <input required type="text" name="firstName" value={formData.firstName} onChange={handleInputChange} className="w-full border-b border-[#e8e4de] py-4 text-base focus:border-black outline-none transition-all bg-transparent" />
@@ -771,12 +877,13 @@ export default function CheckoutPage() {
                         className={`${playfair.className} w-full relative bg-black text-white py-7 text-[14px] tracking-[0.6em] uppercase hover:bg-[#c5a059] transition-all duration-1000 shadow-[0_30px_60px_rgba(0,0,0,0.25)] group overflow-hidden active:scale-[0.98]`}
                       >
                          <span className="relative z-10 flex items-center justify-center gap-4">
-                            {isSubmitting ? "Securing Transaction..." : `Confirm & Authorize — ₹${totalPrice.toLocaleString("en-IN")}.00`}
+                            {isSubmitting ? "Securing Transaction..." : editingAddressId ? `Update & Authorize — ₹${totalPrice.toLocaleString("en-IN")}.00` : `Confirm & Authorize — ₹${totalPrice.toLocaleString("en-IN")}.00`}
                          </span>
                          <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-700" />
                       </button>
                     </div>
-                  </form>
+                    </form>
+                  </div>
                 )}
 
                 {/* Final CTA for Saved Address */}
