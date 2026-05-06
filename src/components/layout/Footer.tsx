@@ -84,48 +84,48 @@ export default function Footer() {
           </h4>
 
           <div className="space-y-6">
-             <Link 
-               href="/contact-us" 
-               className="flex items-center gap-4 group text-gray-600 hover:text-black transition"
-             >
-               <div className="w-10 h-10 border border-gray-100 flex items-center justify-center rounded-sm bg-[#faf9f7] group-hover:bg-white group-hover:border-black transition-all">
-                  <Headset size={18} strokeWidth={1.5} />
-               </div>
-               <span className="text-[15px]">Contact Us</span>
-             </Link>
+            <Link
+              href="/contact-us"
+              className="flex items-center gap-4 group text-gray-600 hover:text-black transition"
+            >
+              <div className="w-10 h-10 border border-gray-100 flex items-center justify-center rounded-sm bg-[#faf9f7] group-hover:bg-white group-hover:border-black transition-all">
+                <Headset size={18} strokeWidth={1.5} />
+              </div>
+              <span className="text-[15px]">Contact Us</span>
+            </Link>
 
-             <Link 
-               href="/store-locator" 
-               className="flex items-center gap-4 group text-gray-600 hover:text-black transition"
-             >
-               <div className="w-10 h-10 border border-gray-100 flex items-center justify-center rounded-sm bg-[#faf9f7] group-hover:bg-white group-hover:border-black transition-all">
-                  <MapPin size={18} strokeWidth={1.5} />
-               </div>
-               <span className="text-[15px]">Store Locator</span>
-             </Link>
+            <Link
+              href="/store-locator"
+              className="flex items-center gap-4 group text-gray-600 hover:text-black transition"
+            >
+              <div className="w-10 h-10 border border-gray-100 flex items-center justify-center rounded-sm bg-[#faf9f7] group-hover:bg-white group-hover:border-black transition-all">
+                <MapPin size={18} strokeWidth={1.5} />
+              </div>
+              <span className="text-[15px]">Store Locator</span>
+            </Link>
 
-             <a 
-               href="mailto:info@lalitdalima.com" 
-               className="flex items-center gap-4 group text-gray-600 hover:text-black transition"
-             >
-               <div className="w-10 h-10 border border-gray-100 flex items-center justify-center rounded-sm bg-[#faf9f7] group-hover:bg-white group-hover:border-black transition-all">
-                  <Mail size={18} strokeWidth={1.5} />
-               </div>
-               <span className="text-[15px]">Email Us</span>
-             </a>
+            <a
+              href="mailto:info@lalitdalima.com"
+              className="flex items-center gap-4 group text-gray-600 hover:text-black transition"
+            >
+              <div className="w-10 h-10 border border-gray-100 flex items-center justify-center rounded-sm bg-[#faf9f7] group-hover:bg-white group-hover:border-black transition-all">
+                <Mail size={18} strokeWidth={1.5} />
+              </div>
+              <span className="text-[15px]">Email Us</span>
+            </a>
 
-             <a 
-               href="tel:+919810446103" 
-               className="flex items-center gap-4 group text-gray-600 hover:text-black transition"
-             >
-               <div className="w-10 h-10 border border-gray-100 flex items-center justify-center rounded-sm bg-[#faf9f7] group-hover:bg-white group-hover:border-black transition-all">
-                  <Phone size={18} strokeWidth={1.5} />
-               </div>
-               <span className="text-[15px] leading-tight">
-                  WhatsApp / Call Us:<br/>
-                  <span className="font-semibold text-black">+91 9810446103</span>
-               </span>
-             </a>
+            <a
+              href="tel:+919810446103"
+              className="flex items-center gap-4 group text-gray-600 hover:text-black transition"
+            >
+              <div className="w-10 h-10 border border-gray-100 flex items-center justify-center rounded-sm bg-[#faf9f7] group-hover:bg-white group-hover:border-black transition-all">
+                <Phone size={18} strokeWidth={1.5} />
+              </div>
+              <span className="text-[15px] leading-tight">
+                WhatsApp / Call Us:<br />
+                <span className="font-semibold text-black">+91 9810446103</span>
+              </span>
+            </a>
           </div>
         </div>
 
@@ -152,7 +152,7 @@ export default function Footer() {
           <p className="text-[12px] tracking-[0.2em] uppercase text-black text-center">
             © {new Date().getFullYear()} Lalit Dalmia. All rights reserved.
           </p>
-          <p className="text-[10px] tracking-[0.2em] uppercase text-black/60 font-medium text-center">
+          <p className="text-[10px] tracking-[0.2em] uppercase text-white font-medium text-center">
             created by Ankit Singh & Lokender Chauhan
           </p>
         </div>
