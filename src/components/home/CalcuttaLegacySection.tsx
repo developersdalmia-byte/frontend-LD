@@ -30,7 +30,7 @@ export default function CalcuttaLegacySection() {
           <p className={`${playfair.className} text-xl md:text-3xl lg:text-4xl text-black leading-[1.6] md:leading-[1.7] tracking-wide`}>
             "The allure of narrow lanes and jutting balconies, where storied mansions whisper tales of North Calcutta. 
             A city so rich in its nonchalance, suspended between the clamour of grandeur and the grace of decay. 
-            There is something spiritual in this neglect of luxury , a casual existence of glamour that makes Calcutta truly unforgettable."
+            There is something spiritual in this neglect of luxury, a casual existence of glamour that makes Calcutta truly unforgettable."
           </p>
           
           <div className="pt-8">

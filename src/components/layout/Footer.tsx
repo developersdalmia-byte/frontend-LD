@@ -23,10 +23,10 @@ const FOOTER_LINKS = {
     { label: "Weddings", href: "/category/weddings" },
   ],
   "Lalit Dalmia": [
-    { label: "History", href: "/world-of-lalit-dalima/history" },
-    { label: "Social Initiative", href: "/world-of-lalit-dalima/social-initiative" },
-    { label: "Craft Preservation", href: "/world-of-lalit-dalima/craft-preservation" },
-    { label: "Art of Retail", href: "/world-of-lalit-dalima/art-of-retail" },
+    { label: "History", href: "/world-of-lalit-dalmia/history" },
+    { label: "Social Initiative", href: "/world-of-lalit-dalmia/social-initiative" },
+    { label: "Craft Preservation", href: "/world-of-lalit-dalmia/craft-preservation" },
+    { label: "Art of Retail", href: "/world-of-lalit-dalmia/art-of-retail" },
   ],
   "Client Services": [
     { label: "Privacy Policy", href: "/policies/privacy-policy" },
@@ -105,7 +105,7 @@ export default function Footer() {
             </Link>
 
             <a
-              href="mailto:info@lalitdalima.com"
+              href="mailto:info@lalitdalmia.com"
               className="flex items-center gap-4 group text-gray-600 hover:text-black transition"
             >
               <div className="w-10 h-10 border border-gray-100 flex items-center justify-center rounded-sm bg-[#faf9f7] group-hover:bg-white group-hover:border-black transition-all">

@@ -67,7 +67,7 @@ export default function AppointmentSection() {
                 </div>
                 <div>
                   <h4 className="text-[10px] tracking-[0.2em] uppercase text-[#9c9690] mb-2">Email</h4>
-                  <p className={`${playfair.className} text-lg text-black`}>concierge@lalitdalima.com</p>
+                  <p className={`${playfair.className} text-lg text-black`}>concierge@lalitdalmia.com</p>
                 </div>
               </div>
             </div>

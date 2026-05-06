@@ -20,7 +20,7 @@ export default function Navbar() {
   const { showNav: _showNav, hasScrolled: scrollState } = useNavbarScroll();
   const pathname = usePathname();
 
-  const isTransparentPage = pathname === "/" || pathname.startsWith("/category/") || pathname.startsWith("/world-of-lalit-dalima");
+  const isTransparentPage = pathname === "/" || pathname.startsWith("/category/") || pathname.startsWith("/world-of-lalit-dalmia");
   const isCheckoutPage = pathname === "/checkout";
   const hasScrolled = scrollState || !isTransparentPage;
   const showNav = isCheckoutPage ? true : _showNav;

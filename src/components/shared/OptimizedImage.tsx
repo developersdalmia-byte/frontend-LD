@@ -17,10 +17,18 @@ export default function OptimizedImage({
   priority,
   sizes,
   quality,
+  src,
   ...rest
 }: OptimizedImageProps) {
+  // Normalize src: if it's a relative path (string) and doesn't start with / or http, prepend /
+  const normalizedSrc =
+    typeof src === "string" && !src.startsWith("/") && !src.startsWith("http")
+      ? `/${src}`
+      : src;
+
   return (
     <Image
+      src={normalizedSrc}
       // Default to blur placeholder for a premium loading experience
       placeholder={placeholder ?? "blur"}
       blurDataURL={blurDataURL ?? BLUR_DATA_URL}
