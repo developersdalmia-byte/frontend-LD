@@ -30,7 +30,7 @@ const CATEGORIES = [
   {
     title: "Indowestern Jackets",
     href: "/products?category=womenswear&subcategory=jacket",
-    image: "/womens_western_luxury.webp",
+    image: "/indowestern-gown_result.avif",
   },
 
   // ROW 2: Menswear
