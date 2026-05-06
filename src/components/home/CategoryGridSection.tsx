@@ -20,7 +20,7 @@ const CATEGORIES = [
   {
     title: "Gowns",
     href: "/products?category=womenswear&subcategory=gown",
-    image: "//gowns_result.avif",
+    image: "/gowns_result.avif",
   },
   {
     title: "Lehenga Sets",
