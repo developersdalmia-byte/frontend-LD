@@ -15,6 +15,7 @@ const playfair = Playfair_Display({
 });
 
 interface Props {
+  mainCategorySlug?: string;
   initialFilters?: {
     category?: string;
     occasion?: string;
@@ -24,18 +25,24 @@ interface Props {
   };
 }
 
-function FilteredProductGridContent({ initialFilters }: { initialFilters?: any }) {
+function FilteredProductGridContent({ mainCategorySlug, initialFilters }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const [activeFilters, setActiveFilters] = useState<any>(initialFilters || {});
+  const [activeFilters, setActiveFilters] = useState<any>({
+    ...initialFilters,
+    category: mainCategorySlug || initialFilters?.category || "",
+  });
   const [gridLayout, setGridLayout] = useState<2 | 4>(4);
 
-  // Sync state when URL/initialFilters change (Mega Menu navigation)
   useEffect(() => {
-    setActiveFilters(initialFilters || {});
+    setActiveFilters({
+      ...initialFilters,
+      category: mainCategorySlug || initialFilters?.category || "",
+    });
   }, [
+    mainCategorySlug,
     initialFilters?.category,
     initialFilters?.subcategory,
     initialFilters?.occasion,
