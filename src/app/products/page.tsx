@@ -14,6 +14,7 @@ export default async function ProductsPage({ searchParams }: Props) {
   const mainCategoryStr = typeof sParams.mainCategory === "string" ? sParams.mainCategory : "";
   const categoryStr = typeof sParams.category === "string" ? sParams.category : "";
   const occasionStr = typeof sParams.occasion === "string" ? sParams.occasion : "";
+  const subCategoryStr = typeof sParams.subCategory === "string" ? sParams.subCategory : (typeof sParams.subcategory === "string" ? sParams.subcategory : "");
   const sortStr = typeof sParams.sort === "string" ? sParams.sort : "";
   const availabilityStr = typeof sParams.availability === "string" ? sParams.availability : "";
 
@@ -41,8 +42,9 @@ export default async function ProductsPage({ searchParams }: Props) {
           initialFilters={{
             mainCategory: mainCategoryStr,
             category: categoryStr,
+            subCategory: subCategoryStr,
             occasion: occasionStr,
-            sort: sortStr,
+            sort: sortStr as any,
             availability: availabilityStr,
           }}
         />
