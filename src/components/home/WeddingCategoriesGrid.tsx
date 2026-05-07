@@ -14,22 +14,22 @@ const WEDDING_TYPES = [
   {
     title: "Bridal Couture",
     image: "https://api.lalitdalmia.com/uploads/websiteImages/images/womenswear/1LD 28.03.26_ 1603.webp",
-    href: "/weddings/bridal",
+    href: "/products?mainCategory=womens-wear&category=lehenga",
   },
   {
     title: "Groom's Collection",
     image: "https://api.lalitdalmia.com/uploads/websiteImages/images/menswear/1_3 (1).webp",
-    href: "/weddings/groom",
+    href: "/products?mainCategory=mens-wear&category=sherwani",
   },
   {
     title: "Bridesmaids",
     image: "https://api.lalitdalmia.com/uploads/websiteImages/images/womenswear/1LD 28.03.26_ 1961.webp",
-    href: "/weddings/bridesmaids",
+    href: "/products?mainCategory=womens-wear&category=saree",
   },
   {
     title: "The Trousseau",
     image: "https://api.lalitdalmia.com/uploads/websiteImages/images/womenswear/1LD 28.03.26_ 617.webp",
-    href: "/weddings/trousseau",
+    href: "/products?mainCategory=womens-wear",
   },
 ];
 

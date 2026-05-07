@@ -14,46 +14,41 @@ const CATEGORIES = [
   // ROW 1: Womenswear
   {
     title: "Sarees",
-    href: "/products?category=womenswear&subcategory=saree",
+    href: "/products?mainCategory=womens-wear&category=saree",
     image: "/saree_result.avif",
   },
   {
     title: "Gowns",
-    href: "/products?category=womenswear&subcategory=gown",
+    href: "/products?mainCategory=womens-wear&category=gown",
     image: "/gowns_result.avif",
   },
   {
     title: "Lehenga Sets",
-    href: "/products?category=womenswear&subcategory=lehenga",
+    href: "/products?mainCategory=womens-wear&category=lehenga",
     image: "/lehenga_result.avif",
   },
   {
     title: "Indowestern Jackets",
-    href: "/products?category=womenswear&subcategory=jacket",
+    href: "/products?mainCategory=womens-wear&category=jacket",
     image: "/indowestern-gown_result.avif",
   },
 
   // ROW 2: Menswear
   {
     title: "Bandhgala Sets",
-    href: "/products?category=menswear&subcategory=bandgala",
+    href: "/products?mainCategory=mens-wear&category=bandgala",
     image: "/bandhgala shervani_result.avif",
   },
   {
     title: "Kurta Sets",
-    href: "/products?category=menswear&subcategory=kurta",
+    href: "/products?mainCategory=mens-wear&category=kurta",
     image: "/kurtas_result.avif",
   },
   {
     title: "Sherwani Sets",
-    href: "/products?category=menswear&subcategory=sherwani",
+    href: "/products?mainCategory=mens-wear&category=sherwani",
     image: "/sherwanis_result.avif",
   },
-  // {
-  //   title: "Nehru Jackets",
-  //   href: "/products?category=menswear&subcategory=nehru-jacket",
-  //   image: "/bandhgala shervani_result.avif",
-  // },
 ];
 
 export default function CategoryGridSection() {

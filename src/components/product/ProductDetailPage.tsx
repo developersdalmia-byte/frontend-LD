@@ -194,12 +194,12 @@ export default function ProductDetailPage({ product, onBack }: ProductDetailPage
   // Product detail bullet points
   const productDetailBullets: string[] = [
     "Product Color May Slightly Vary Due To Photographic Lighting Sources Or Your Monitor Setting.",
-    product.tags?.includes("set") ? "MRP Inclusive Of : " + product.tags.join(" | ") : "",
-    product.fabric ? `Materials : ${product.fabric}` : "",
-    product.attributes?.style ? `Color : ${product.attributes.style}` : "",
+    product.productDetails?.mrpIncludes ? `MRP Inclusive Of : ${product.productDetails.mrpIncludes}` : (product.tags?.includes("set") ? "MRP Inclusive Of : " + product.tags.join(" | ") : ""),
+    product.productDetails?.material ? `Materials : "${product.productDetails.material}"` : (product.fabric ? `Materials : "${product.fabric}"` : ""),
+    product.productDetails?.color ? `Color : "${product.productDetails.color}"` : (product.attributes?.style ? `Color : "${product.attributes.style}"` : ""),
     product.care ? `Care Guide : ${product.care}` : "",
     isMadeToOrder ? "Made to Order : 10 Weeks" : "",
-    "Model Wearing Size Small, Model Height 5'9\"",
+    product.productDetails?.modelInfo || "Model Wearing Size Small, Model Height 5'9\"",
   ].filter(Boolean);
 
   const accordions = [
@@ -217,7 +217,7 @@ export default function ProductDetailPage({ product, onBack }: ProductDetailPage
             ))}
           </ul>
           <p className="text-[10px] tracking-[0.1em] text-[#9c9690] uppercase mt-4 pt-4 border-t border-[#f0ede8]">
-            SKU. {product.id.toUpperCase()}
+            SKU. {product.sku || product.id.toUpperCase()}
           </p>
         </div>
       ),
