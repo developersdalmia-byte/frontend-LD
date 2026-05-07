@@ -7,6 +7,7 @@ import { X, Minus, Plus, ShoppingBag, ArrowRight } from "lucide-react";
 import { Playfair_Display } from "next/font/google";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import { useNotification } from "@/context/NotificationContext";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -19,13 +20,15 @@ export default function CartDrawer() {
     useCart();
   const { isLoggedIn, openLoginModal } = useAuth();
   const router = useRouter();
+  const { showNotification } = useNotification();
 
   const handleCheckout = () => {
     closeCart();
     if (isLoggedIn) {
       router.push("/checkout");
     } else {
-      openLoginModal("/checkout");;
+      showNotification("info", "Please sign in to proceed with your order.", "Sign In Required");
+      openLoginModal("/checkout");
     }
   };
 
@@ -144,7 +147,10 @@ export default function CartDrawer() {
                       </button>
                     </div>
                     <button
-                      onClick={() => removeFromCart(item.id, item.size)}
+                      onClick={() => {
+                        removeFromCart(item.id, item.size);
+                        showNotification("info", `${item.name} has been removed from your selection.`);
+                      }}
                       className="text-[9px] tracking-[0.25em] uppercase text-[#9c9690] hover:text-black transition-colors underline underline-offset-2 py-2"
                     >
                       Remove

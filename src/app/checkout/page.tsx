@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import Script from "next/script";
 import { useState, useEffect, useCallback } from "react";
+import { useRouter, usePathname } from "next/navigation";
 
 declare global {
   interface Window {
@@ -59,6 +60,9 @@ interface ConfirmedOrderData {
 }
 
 export default function CheckoutPage() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const isCheckoutPage = pathname === "/checkout" || pathname === "/book-an-appointment";
   const { items, totalPrice, totalItems, clearCart } = useCart();
   const { isLoggedIn, user, openLoginModal } = useAuth();
 
@@ -343,23 +347,30 @@ export default function CheckoutPage() {
 
       // Step 1: Create Order on Backend
       const orderRes = await createOrder({
+        orderType: "ONLINE",
+        source: "WEBSITE",
         customer: {
           name: addressData.name,
           phone: addressData.phone,
           email: customerEmail,
         },
-        products: items.map((item) => ({
+        items: items.map((item) => ({
           productId: item.id,
           quantity: item.quantity,
         })),
-        address: {
-          ...addressData,
-          email: customerEmail,
+        shippingAddress: {
+          name: addressData.name,
+          phone: addressData.phone,
+          line1: addressData.addressLine,
+          city: addressData.city,
+          state: addressData.state,
+          postalCode: addressData.pincode,
+          country: "India",
         },
       });
 
       // Step 2: Handle Payment Flow
-      await processPayment(orderRes.orderId, addressData);
+      await processPayment(orderRes._id, addressData);
 
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : "An unexpected error occurred. Please try again.");
@@ -371,6 +382,21 @@ export default function CheckoutPage() {
   const SuccessView = ({ order }: { order: ConfirmedOrderData | null }) => {
     const orderNum = order?.orderId ? `#LD-${order.orderId.slice(-6).toUpperCase()}` : "#LD-000000";
     const orderDate = new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
+    const [countdown, setCountdown] = useState(10);
+
+    useEffect(() => {
+      const timer = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            router.push("/");
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => clearInterval(timer);
+    }, []);
     
     // Sophisticated Production Journey
     const journey = [
@@ -380,173 +406,35 @@ export default function CheckoutPage() {
       { label: "Final Fitting", sub: "Couture Quality Check", done: false },
       { label: "Signature Delivery", sub: "Hand-Delivered Luxury", done: false },
     ];
-
     return (
-      <div className="min-h-screen bg-[#fafaf9] selection:bg-[#c5a059]/30">
-        {/* ── Immersive Success Hero ── */}
-        <section className="relative overflow-hidden bg-[#0a0a0a] pt-64 pb-32 px-6 text-center">
-          {/* Dynamic Light Rays */}
-          <div className="absolute inset-0 pointer-events-none">
-             <div className="absolute top-0 left-1/4 w-[50%] h-full bg-gradient-to-b from-[#c5a059]/10 to-transparent blur-[120px] -rotate-12" />
-             <div className="absolute bottom-0 right-1/4 w-[50%] h-full bg-gradient-to-t from-[#c5a059]/5 to-transparent blur-[120px] rotate-12" />
-          </div>
-
-          <div className="relative z-10 max-w-5xl mx-auto space-y-12 animate-in fade-in zoom-in duration-1000">
-            <div className="relative inline-flex items-center justify-center">
-               <div className="absolute inset-0 bg-[#c5a059]/20 blur-[80px] rounded-full animate-pulse" />
-               <div className="relative w-32 h-32 rounded-full bg-white/5 border border-white/10 backdrop-blur-2xl flex items-center justify-center">
-                  <CheckCircle size={56} className="text-[#c5a059]" strokeWidth={1} />
-               </div>
-            </div>
-
-            <div className="space-y-6">
-              <p className="text-[#c5a059] text-[10px] tracking-[0.6em] uppercase font-bold animate-pulse">Transaction Secured</p>
-              <h1 className={`${playfair.className} text-6xl md:text-9xl font-normal text-white leading-tight tracking-tighter`}>
-                Creation Commenced
-              </h1>
-              <p className="text-white/40 text-[11px] tracking-[0.4em] uppercase max-w-xl mx-auto leading-loose italic">
-                Your selection has entered our artisanal ateliers. Each stitch will now be a testament to your refined taste.
-              </p>
-            </div>
-
-            <div className="flex flex-wrap items-center justify-center gap-6 pt-8">
-               <div className="px-10 py-4 bg-white/5 border border-white/10 backdrop-blur-md rounded-sm">
-                  <span className="block text-white/30 text-[8px] tracking-[0.5em] uppercase mb-1">Couture Ref.</span>
-                  <span className="text-[#c5a059] text-base font-bold tracking-[0.2em]">{orderNum}</span>
-               </div>
-               <div className="px-10 py-4 bg-white/5 border border-white/10 backdrop-blur-md rounded-sm">
-                  <span className="block text-white/30 text-[8px] tracking-[0.5em] uppercase mb-1">Auth Date</span>
-                  <span className="text-white text-base font-medium tracking-widest">{orderDate}</span>
-               </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ── Journey Dashboard ── */}
-        <div className="max-w-[1200px] mx-auto px-6 -mt-16 pb-40 relative z-20">
-          
-          <div className="bg-white border border-[#eee9e2] shadow-[0_50px_100px_rgba(0,0,0,0.06)] p-12 md:p-20 rounded-sm mb-12">
-            <div className="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-8">
-               <div className="space-y-4">
-                  <h2 className="text-[10px] tracking-[0.6em] uppercase text-[#c5a059] font-bold">The Artisanal Path</h2>
-                  <p className={`${playfair.className} text-4xl text-black leading-none`}>Production Lifecycle</p>
-               </div>
-               <div className="flex items-center gap-4 px-6 py-2 bg-[#faf8f5] border border-[#eee9e2] text-[10px] tracking-[0.3em] uppercase text-black font-bold">
-                  <span className="w-2 h-2 rounded-full bg-[#22c55e] animate-ping" />
-                  Status: Preparing Materials
-               </div>
-            </div>
-
-            <div className="relative">
-               {/* Elegant Timeline Rail */}
-               <div className="absolute top-[22px] left-0 w-full h-px bg-[#f0ede8]" />
-               <div className="absolute top-[22px] left-0 w-[10%] h-[2px] bg-[#c5a059]" />
-               
-               <div className="grid grid-cols-1 md:grid-cols-5 gap-12 relative z-10">
-                  {journey.map((step, i) => (
-                    <div key={i} className="flex flex-col items-center md:items-start text-center md:text-left gap-6 group">
-                       <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-1000 ${
-                         step.done ? "bg-black text-white shadow-xl" : "bg-white border border-[#eee9e2] text-[#ccc]"
-                       }`}>
-                          {step.done ? <CheckCircle size={20} strokeWidth={1.5} /> : <div className="w-1.5 h-1.5 rounded-full bg-current" />}
-                       </div>
-                       <div className="space-y-2">
-                          <p className={`text-[11px] font-bold tracking-[0.1em] uppercase ${step.done ? "text-black" : "text-[#9c9690]"}`}>{step.label}</p>
-                          <p className="text-[10px] text-[#9c9690] leading-relaxed italic">{step.sub}</p>
-                       </div>
-                    </div>
-                  ))}
-               </div>
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center px-6 text-center animate-in fade-in duration-1000 pt-20">
+        <div className="max-w-2xl w-full space-y-12">
+          {/* Large Green Checkmark */}
+          <div className="flex justify-center">
+            <div className="w-24 h-24 rounded-full border-[3px] border-[#22c55e] flex items-center justify-center animate-in zoom-in duration-700">
+              <CheckCircle size={48} className="text-[#22c55e]" strokeWidth={1.5} />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-12">
-            {/* Order Manifest */}
-            <div className="xl:col-span-2 space-y-12">
-               <div className="bg-white border border-[#eee9e2] p-12 md:p-16 rounded-sm">
-                  <div className="flex items-center justify-between mb-16 pb-8 border-b border-[#faf8f5]">
-                     <h3 className={`${playfair.className} text-3xl text-black`}>Order Manifest</h3>
-                     <span className="text-[10px] tracking-[0.4em] uppercase text-[#9c9690] font-bold">{order?.items.length} Exclusive Pieces</span>
-                  </div>
-                  
-                  <div className="space-y-16">
-                     {order?.items.map((item, i) => (
-                        <div key={i} className="flex flex-col md:flex-row gap-12 group animate-in fade-in slide-in-from-bottom-8 duration-700" style={{ animationDelay: `${i * 200}ms` }}>
-                           <div className="relative w-full md:w-32 h-44 bg-[#f8f5f0] overflow-hidden rounded-sm border border-[#f0ede8] flex-shrink-0">
-                              <OptimizedImage src={item.image} alt={item.name} fill className="object-cover transition-transform duration-[2s] group-hover:scale-110" sizes="128px" />
-                           </div>
-                           <div className="flex-1 flex flex-col justify-between py-2">
-                              <div>
-                                 <h4 className={`${playfair.className} text-2xl text-black mb-6 group-hover:text-[#c5a059] transition-colors`}>{item.name}</h4>
-                                 <div className="flex gap-12">
-                                    <div className="space-y-1">
-                                       <span className="text-[8px] tracking-widest uppercase text-[#9c9690] block">Size Selection</span>
-                                       <span className="text-xs text-black font-bold uppercase tracking-widest">{item.size}</span>
-                                    </div>
-                                    <div className="space-y-1">
-                                       <span className="text-[8px] tracking-widest uppercase text-[#9c9690] block">Quantity</span>
-                                       <span className="text-xs text-black font-bold uppercase tracking-widest">{item.quantity} Unit</span>
-                                    </div>
-                                 </div>
-                              </div>
-                              <p className={`${playfair.className} text-2xl text-black font-medium mt-6 md:mt-0`}>₹{item.price.toLocaleString("en-IN")}.00</p>
-                           </div>
-                        </div>
-                     ))}
-                  </div>
+          <div className="space-y-6">
+            <h1 className={`${playfair.className} text-5xl md:text-7xl font-normal text-black tracking-tight`}>
+              Order Confirmed
+            </h1>
+            <p className="text-[#6b6560] text-lg md:text-xl font-light max-w-lg mx-auto leading-relaxed">
+              Thank you, {formData.firstName || "Customer"}. Your order <span className="font-bold text-black">{orderNum}</span> has been placed successfully.
+            </p>
+          </div>
 
-                  <div className="mt-20 pt-12 border-t-2 border-black">
-                     <div className="flex justify-between items-end">
-                        <div className="space-y-2">
-                           <span className="text-[10px] tracking-[0.5em] uppercase text-[#c5a059] font-bold block">Final Authorized Amount</span>
-                           <p className={`${playfair.className} text-5xl text-black font-semibold tracking-tighter`}>₹{order?.total.toLocaleString("en-IN")}.00</p>
-                        </div>
-                     </div>
-                  </div>
-               </div>
-            </div>
-
-            {/* Logistics & Support */}
-            <div className="space-y-12">
-               <div className="bg-white border border-[#eee9e2] p-12 rounded-sm shadow-sm relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-[#c5a059]/5 blur-[80px] rounded-full translate-x-16 -translate-y-16" />
-                  <div className="flex items-center gap-4 mb-10">
-                     <MapPin size={20} className="text-[#c5a059]" />
-                     <h3 className="text-[10px] tracking-[0.5em] uppercase text-black font-bold">Shipping Destination</h3>
-                  </div>
-                  <div className="space-y-8">
-                     <p className={`${playfair.className} text-xl text-black leading-relaxed italic`}>
-                        {order?.address}
-                     </p>
-                     <div className="p-6 bg-[#faf8f5] border border-[#eee9e2] rounded-sm group-hover:bg-[#f0ede8] transition-colors duration-700">
-                        <div className="flex items-center gap-4 mb-3">
-                           <Truck size={20} className="text-black" />
-                           <span className="text-[9px] tracking-[0.4em] uppercase font-bold">White-Glove Express</span>
-                        </div>
-                        <p className="text-[11px] text-[#6b6560] leading-loose">Your piece is currently being hand-inspected for tailoring excellence. We prioritize preservation and elegance in our packaging.</p>
-                     </div>
-                  </div>
-               </div>
-
-               <div className="bg-black p-12 rounded-sm text-center space-y-8 group overflow-hidden relative">
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#c5a059]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-                  <p className="text-[#c5a059] text-[9px] tracking-[0.6em] uppercase font-bold relative z-10">The Heritage Promise</p>
-                  <p className={`${playfair.className} text-white/90 text-lg leading-relaxed italic relative z-10`}>
-                     "Our creations are echoes of tradition, reborn in the modern world."
-                  </p>
-                  <div className="w-12 h-px bg-white/20 mx-auto relative z-10" />
-                  <p className="text-white/40 text-[8px] tracking-[0.4em] uppercase relative z-10">House of Lalit Dalmia</p>
-               </div>
-
-               <div className="space-y-4">
-                  <button onClick={() => window.print()} className="w-full py-6 bg-white border border-black text-black hover:bg-black hover:text-white transition-all duration-700 text-[11px] tracking-[0.4em] uppercase font-bold flex items-center justify-center gap-4">
-                     <Printer size={16} /> Print Archival Receipt
-                  </button>
-                  <Link href="/orders" className="w-full py-6 bg-[#faf8f5] border border-[#eee9e2] hover:border-black text-black transition-all duration-700 text-[11px] tracking-[0.4em] uppercase font-bold flex items-center justify-center">
-                     Order Concierge
-                  </Link>
-               </div>
-            </div>
+          <div className="pt-8 flex flex-col items-center gap-8">
+            <Link 
+              href="/" 
+              className="bg-black text-white px-20 py-5 text-[12px] tracking-[0.5em] uppercase font-bold hover:bg-[#1a1a1a] transition-all duration-300 w-full md:w-auto"
+            >
+              Back to Home
+            </Link>
+            <p className="text-[10px] text-[#9c9690] tracking-[0.3em] uppercase">
+              Auto-redirecting in <span className="text-black font-bold">{countdown}</span> seconds
+            </p>
           </div>
         </div>
       </div>
@@ -824,64 +712,64 @@ export default function CheckoutPage() {
                     </div>
                     <form onSubmit={handleSubmit} className="space-y-12">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                      <div className="relative group">
-                        <label className="absolute left-0 -top-6 text-[9px] tracking-[0.3em] uppercase text-[#9c9690] group-focus-within:text-black">First Name</label>
-                        <input required type="text" name="firstName" value={formData.firstName} onChange={handleInputChange} className="w-full border-b border-[#e8e4de] py-4 text-base focus:border-black outline-none transition-all bg-transparent" />
-                      </div>
-                      <div className="relative group">
-                        <label className="absolute left-0 -top-6 text-[9px] tracking-[0.3em] uppercase text-[#9c9690] group-focus-within:text-black">Last Name</label>
-                        <input required type="text" name="lastName" value={formData.lastName} onChange={handleInputChange} className="w-full border-b border-[#e8e4de] py-4 text-base focus:border-black outline-none transition-all bg-transparent" />
-                      </div>
-                    </div>
-
-                    <div className="relative group">
-                      <label className="absolute left-0 -top-6 text-[9px] tracking-[0.3em] uppercase text-[#9c9690] group-focus-within:text-black">Complete Address</label>
-                      <input required type="text" name="addressLine" placeholder="Apartment, Street, Landmark" value={formData.addressLine} onChange={handleInputChange} className="w-full border-b border-[#e8e4de] py-4 text-base focus:border-black outline-none transition-all bg-transparent" />
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-                      <div className="relative group">
-                        <label className="absolute left-0 -top-6 text-[9px] tracking-[0.3em] uppercase text-[#9c9690] group-focus-within:text-black">City</label>
-                        <input required type="text" name="city" value={formData.city} onChange={handleInputChange} className="w-full border-b border-[#e8e4de] py-4 text-base focus:border-black outline-none transition-all bg-transparent" />
-                      </div>
-                      <div className="relative group">
-                        <label className="absolute left-0 -top-6 text-[9px] tracking-[0.3em] uppercase text-[#9c9690] group-focus-within:text-black">State</label>
-                        <input required type="text" name="state" value={formData.state} onChange={handleInputChange} className="w-full border-b border-[#e8e4de] py-4 text-base focus:border-black outline-none transition-all bg-transparent" />
-                      </div>
-                      <div className="relative group">
-                        <label className="absolute left-0 -top-6 text-[9px] tracking-[0.3em] uppercase text-[#9c9690] group-focus-within:text-black">Pincode</label>
-                        <input required type="text" name="pincode" value={formData.pincode} onChange={handleInputChange} className="w-full border-b border-[#e8e4de] py-4 text-base focus:border-black outline-none transition-all bg-transparent" />
-                      </div>
-                    </div>
-
-                    {isLoggedIn && (
-                      <label className="flex items-center gap-4 cursor-pointer group w-fit">
-                        <div className={`relative w-5 h-5 border transition-all duration-500 rounded-sm ${formData.saveAddress ? 'bg-black border-black' : 'border-[#e8e4de] group-hover:border-black'}`}>
-                          <input type="checkbox" name="saveAddress" checked={formData.saveAddress} onChange={handleInputChange} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
-                          {formData.saveAddress && <CheckCircle size={12} className="text-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />}
+                        <div className="relative group">
+                          <label className="absolute left-0 -top-6 text-[9px] tracking-[0.3em] uppercase text-[#9c9690] group-focus-within:text-black">First Name</label>
+                          <input required type="text" name="firstName" value={formData.firstName} onChange={handleInputChange} className="w-full border-b border-[#e8e4de] py-4 text-base focus:border-black outline-none transition-all bg-transparent" />
                         </div>
-                        <span className="text-[11px] text-[#6b6560] tracking-widest uppercase">Secure this address for future curation</span>
-                      </label>
-                    )}
-                    
-                    {submitError && (
-                      <div className="p-6 bg-red-50 border-l-4 border-red-500 text-red-900 text-[11px] tracking-widest uppercase animate-in slide-in-from-left-4 duration-500">
-                        {submitError}
+                        <div className="relative group">
+                          <label className="absolute left-0 -top-6 text-[9px] tracking-[0.3em] uppercase text-[#9c9690] group-focus-within:text-black">Last Name</label>
+                          <input required type="text" name="lastName" value={formData.lastName} onChange={handleInputChange} className="w-full border-b border-[#e8e4de] py-4 text-base focus:border-black outline-none transition-all bg-transparent" />
+                        </div>
                       </div>
-                    )}
 
-                    <div className="pt-12">
-                      <button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className={`${playfair.className} w-full relative bg-black text-white py-7 text-[14px] tracking-[0.6em] uppercase hover:bg-[#c5a059] transition-all duration-1000 shadow-[0_30px_60px_rgba(0,0,0,0.25)] group overflow-hidden active:scale-[0.98]`}
-                      >
-                         <span className="relative z-10 flex items-center justify-center gap-4">
-                            {isSubmitting ? "Securing Transaction..." : editingAddressId ? `Update & Authorize — ₹${totalPrice.toLocaleString("en-IN")}.00` : `Confirm & Authorize — ₹${totalPrice.toLocaleString("en-IN")}.00`}
-                         </span>
-                         <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-700" />
-                      </button>
-                    </div>
+                      <div className="relative group">
+                        <label className="absolute left-0 -top-6 text-[9px] tracking-[0.3em] uppercase text-[#9c9690] group-focus-within:text-black">Complete Address</label>
+                        <input required type="text" name="addressLine" placeholder="Apartment, Street, Landmark" value={formData.addressLine} onChange={handleInputChange} className="w-full border-b border-[#e8e4de] py-4 text-base focus:border-black outline-none transition-all bg-transparent" />
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+                        <div className="relative group">
+                          <label className="absolute left-0 -top-6 text-[9px] tracking-[0.3em] uppercase text-[#9c9690] group-focus-within:text-black">City</label>
+                          <input required type="text" name="city" value={formData.city} onChange={handleInputChange} className="w-full border-b border-[#e8e4de] py-4 text-base focus:border-black outline-none transition-all bg-transparent" />
+                        </div>
+                        <div className="relative group">
+                          <label className="absolute left-0 -top-6 text-[9px] tracking-[0.3em] uppercase text-[#9c9690] group-focus-within:text-black">State</label>
+                          <input required type="text" name="state" value={formData.state} onChange={handleInputChange} className="w-full border-b border-[#e8e4de] py-4 text-base focus:border-black outline-none transition-all bg-transparent" />
+                        </div>
+                        <div className="relative group">
+                          <label className="absolute left-0 -top-6 text-[9px] tracking-[0.3em] uppercase text-[#9c9690] group-focus-within:text-black">Pincode</label>
+                          <input required type="text" name="pincode" value={formData.pincode} onChange={handleInputChange} className="w-full border-b border-[#e8e4de] py-4 text-base focus:border-black outline-none transition-all bg-transparent" />
+                        </div>
+                      </div>
+
+                      {isLoggedIn && (
+                        <label className="flex items-center gap-4 cursor-pointer group w-fit">
+                          <div className={`relative w-5 h-5 border transition-all duration-500 rounded-sm ${formData.saveAddress ? 'bg-black border-black' : 'border-[#e8e4de] group-hover:border-black'}`}>
+                            <input type="checkbox" name="saveAddress" checked={formData.saveAddress} onChange={handleInputChange} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
+                            {formData.saveAddress && <CheckCircle size={12} className="text-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />}
+                          </div>
+                          <span className="text-[11px] text-[#6b6560] tracking-widest uppercase">Secure this address for future curation</span>
+                        </label>
+                      )}
+                      
+                      {submitError && (
+                        <div className="p-6 bg-red-50 border-l-4 border-red-500 text-red-900 text-[11px] tracking-widest uppercase animate-in slide-in-from-left-4 duration-500">
+                          {submitError}
+                        </div>
+                      )}
+
+                      <div className="pt-12">
+                        <button
+                          type="submit"
+                          disabled={isSubmitting}
+                          className={`${playfair.className} w-full relative bg-black text-white py-7 text-[14px] tracking-[0.6em] uppercase hover:bg-[#c5a059] transition-all duration-1000 shadow-[0_30px_60px_rgba(0,0,0,0.25)] group overflow-hidden active:scale-[0.98]`}
+                        >
+                           <span className="relative z-10 flex items-center justify-center gap-4">
+                              {isSubmitting ? "Securing Transaction..." : editingAddressId ? `Update & Authorize — ₹${totalPrice.toLocaleString("en-IN")}.00` : `Confirm & Authorize — ₹${totalPrice.toLocaleString("en-IN")}.00`}
+                           </span>
+                           <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-700" />
+                        </button>
+                      </div>
                     </form>
                   </div>
                 )}

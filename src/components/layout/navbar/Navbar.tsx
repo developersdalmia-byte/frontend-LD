@@ -21,7 +21,7 @@ export default function Navbar() {
   const pathname = usePathname();
 
   const isTransparentPage = pathname === "/" || pathname.startsWith("/category/") || pathname.startsWith("/world-of-lalit-dalmia");
-  const isCheckoutPage = pathname === "/checkout";
+  const isCheckoutPage = pathname === "/checkout" || pathname === "/book-an-appointment";
   const hasScrolled = scrollState || !isTransparentPage;
   const showNav = isCheckoutPage ? true : _showNav;
 
@@ -104,7 +104,7 @@ export default function Navbar() {
 
           {/* Center: Logo — both variants rendered, toggled via opacity */}
           <div className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 mt-2 flex items-center justify-center">
-            <Link href="/" className="relative block w-[150px] h-[155px]">
+            <Link href="/" aria-label="Lalit Dalmia Home" className="relative block w-[150px] h-[155px]">
               <Image
                 src="https://api.lalitdalmia.com/uploads/websiteImages/Logo/LD-LOGO-BLK.webp"
                 alt="Lalit Dalmia"

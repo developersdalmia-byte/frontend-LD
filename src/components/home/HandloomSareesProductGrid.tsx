@@ -14,6 +14,7 @@ const playfair = Playfair_Display({
 export default function HandloomSareesProductGrid() {
   const { products, loading, error, refresh } = useProducts({
     limit: 4,
+    mainCategory: "womens-wear",
     category: "banasri-silk",
     // Update to: category: "handloom" once the backend supports that category value
   });

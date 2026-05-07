@@ -477,18 +477,27 @@ export default function ProductDetailPage({ product, onBack }: ProductDetailPage
             )}
 
             {/* Shipping + Fitting info */}
-            {isMadeToOrder && (
-              <div className="mb-5 space-y-1.5">
+            <div className="mb-5 space-y-1.5">
+              <p className="text-[11px] text-[#3d3a36]">
+                <span className="font-medium">Shipping:</span> {product.shippingTime || (isMadeToOrder ? "Made to order : 10 weeks" : "Ready to ship")}
+              </p>
+              {product.fitting && (
                 <p className="text-[11px] text-[#3d3a36]">
-                  <span className="font-medium">Shipping:</span> Made to order : 10 weeks
+                  <span className="font-medium">Fitting ({selectedSize || sizesToRender[0]}):</span>{" "}
+                  {(() => {
+                    const currentSize = selectedSize || sizesToRender[0];
+                    const f = product.fitting[currentSize];
+                    if (!f) return "Standard fit";
+                    const parts = [];
+                    if (f.bust) parts.push(`Bust · ${f.bust}`);
+                    if (f.waist) parts.push(`Waist · ${f.waist}`);
+                    if (f.hip) parts.push(`Hip · ${f.hip}`);
+                    if (f.shoulder) parts.push(`Shoulder · ${f.shoulder}`);
+                    return parts.length > 0 ? parts.join(" | ") : "Standard fit";
+                  })()}
                 </p>
-                {product.attributes?.occasion && (
-                  <p className="text-[11px] text-[#3d3a36]">
-                    <span className="font-medium">Fitting:</span> Bust · 34.5in | Waist · 27in | Hip · 37in | Shoulder · 14.5in
-                  </p>
-                )}
-              </div>
-            )}
+              )}
+            </div>
 
             {/* ── CTA Buttons ── */}
             <div className="flex flex-col gap-2.5 mb-8">
@@ -560,6 +569,7 @@ export default function ProductDetailPage({ product, onBack }: ProductDetailPage
         onClose={() => setIsSizeGuideOpen(false)}
         category={product.category}
         subcategory={product.subcategory}
+        fitting={product.fitting}
       />
     </div>
   );

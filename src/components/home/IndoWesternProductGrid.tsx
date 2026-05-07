@@ -15,6 +15,7 @@ export default function IndoWesternProductGrid() {
   // Use the improved hook with specific category
   const { products, loading, error, refresh } = useProducts({ 
     limit: 4, 
+    mainCategory: "womens-wear",
     category: "indo-western" 
   });
 

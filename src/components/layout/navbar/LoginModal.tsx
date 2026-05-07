@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, Loader2 } from "lucide-react";
 import { requestOtp, verifyOtp, googleLogin } from "@/services/auth.service";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { FcGoogle } from "react-icons/fc";
+import { useNotification } from "@/context/NotificationContext";
 
 type Props = {
   isOpen: boolean;
@@ -17,6 +18,7 @@ type Step = "phone" | "otp" | "success";
 export default function LoginModal({ isOpen, onClose }: Props) {
   const { login, pendingRedirect, clearPendingRedirect } = useAuth();
   const router = useRouter();
+  const { showNotification } = useNotification();
 
   const [step, setStep] = useState<Step>("phone");
   const [phone, setPhone] = useState("");
@@ -24,6 +26,19 @@ export default function LoginModal({ isOpen, onClose }: Props) {
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [resendTimer, setResendTimer] = useState(0);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (step === "otp" && resendTimer > 0) {
+      timer = setInterval(() => {
+        setResendTimer((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [step, resendTimer]);
 
   if (!isOpen) return null;
 
@@ -33,6 +48,7 @@ export default function LoginModal({ isOpen, onClose }: Props) {
     setName("");
     setOtp("");
     setError(null);
+    setResendTimer(0);
   };
 
   const handleClose = () => {
@@ -58,8 +74,12 @@ export default function LoginModal({ isOpen, onClose }: Props) {
     try {
       await requestOtp(phone, name);
       setStep("otp");
+      setResendTimer(30);
+      showNotification("success", "Verification code has been sent to your mobile number.", "OTP Sent");
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Failed to send OTP.");
+      const msg = err instanceof Error ? err.message : "Failed to send OTP.";
+      setError(msg);
+      showNotification("error", msg, "Request Failed");
     } finally {
       setLoading(false);
     }
@@ -92,7 +112,9 @@ export default function LoginModal({ isOpen, onClose }: Props) {
         handlePostLoginRedirect();
       }, 1200);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Invalid OTP. Try again.");
+      const msg = err instanceof Error ? err.message : "Invalid OTP. Try again.";
+      setError(msg);
+      showNotification("error", msg, "Verification Failed");
     } finally {
       setLoading(false);
     }
@@ -105,6 +127,23 @@ export default function LoginModal({ isOpen, onClose }: Props) {
       googleLogin();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Google sign in failed.");
+      setLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    if (resendTimer > 0 || loading) return;
+    setLoading(true);
+    setError(null);
+    try {
+      await requestOtp(phone, name);
+      setResendTimer(30);
+      showNotification("success", "A new verification code has been sent to your mobile number.", "OTP Resent");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to resend OTP.";
+      setError(msg);
+      showNotification("error", msg, "Resend Failed");
+    } finally {
       setLoading(false);
     }
   };
@@ -262,17 +301,34 @@ export default function LoginModal({ isOpen, onClose }: Props) {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="mt-4 bg-black text-white text-xs tracking-[0.2em] uppercase py-4 hover:bg-gray-900 transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+                  className="bg-black text-white text-xs tracking-[0.2em] uppercase py-4 hover:bg-gray-900 transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
                 >
-                  {loading ? <><Loader2 size={16} className="animate-spin" /> Verifying...</> : "Verify & Login"}
+                  {loading ? <><Loader2 size={16} className="animate-spin" /> Verifying...</> : "Verify OTP"}
                 </button>
+
+                <div className="text-center mt-2">
+                  {resendTimer > 0 ? (
+                    <p className="text-[10px] tracking-widest text-gray-400 uppercase">
+                      Resend code in <span className="text-black font-bold">{resendTimer}s</span>
+                    </p>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleResendOtp}
+                      disabled={loading}
+                      className="text-[10px] tracking-widest text-black uppercase font-bold hover:underline underline-offset-4 transition-all"
+                    >
+                      Resend Verification Code
+                    </button>
+                  )}
+                </div>
 
                 <button
                   type="button"
-                  onClick={() => { setStep("phone"); setOtp(""); setError(null); }}
-                  className="text-xs tracking-wider text-gray-400 hover:text-black transition-colors text-center underline underline-offset-4"
+                  onClick={() => setStep("phone")}
+                  className="text-[10px] tracking-widest text-gray-400 uppercase hover:text-black transition-colors"
                 >
-                  Use a different number
+                  Change Phone Number
                 </button>
               </form>
             )}

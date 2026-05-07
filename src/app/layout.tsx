@@ -7,11 +7,13 @@ import Footer from "@/components/layout/Footer";
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
 import { WishlistProvider } from "@/context/WishlistContext";
+import { NotificationProvider } from "@/context/NotificationContext";
 import dynamic from "next/dynamic";
 
 const CartDrawer = dynamic(() => import("@/components/cart/CartDrawer"));
 const WishlistDrawer = dynamic(() => import("@/components/layout/WishlistDrawer"));
 const ScrollToTop = dynamic(() => import("@/components/shared/ScrollToTop"));
+import SmoothScroll from "@/components/shared/SmoothScroll";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -47,36 +49,40 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${playfair.variable} ${playfair.className} bg-white text-black`}>
-        <WishlistProvider>
-          <CartProvider>
-            <AuthProvider>
+        <SmoothScroll>
+          <NotificationProvider>
+            <WishlistProvider>
+            <CartProvider>
+              <AuthProvider>
 
-              {/* Navbar */}
-              <Navbar />
+                {/* Navbar */}
+                <Navbar />
 
-              {/* Drawers */}
-              <CartDrawer />
-              <WishlistDrawer />
+                {/* Drawers */}
+                <CartDrawer />
+                <WishlistDrawer />
 
-              {/* Main Content (👇 pushed below navbar) */}
-              <main>
-                {children}
-              </main>
+                {/* Main Content (👇 pushed below navbar) */}
+                <main>
+                  {children}
+                </main>
 
-              {/* Global Utilities */}
-              <ScrollToTop />
+                {/* Global Utilities */}
+                <ScrollToTop />
 
-              {/* Footer */}
-              <Footer />
-              
-              <script
-                src="https://checkout.razorpay.com/v1/checkout.js"
-                async
-              ></script>
+                {/* Footer */}
+                <Footer />
+                
+                <script
+                  src="https://checkout.razorpay.com/v1/checkout.js"
+                  async
+                ></script>
 
-            </AuthProvider>
-          </CartProvider>
-        </WishlistProvider>
+              </AuthProvider>
+            </CartProvider>
+            </WishlistProvider>
+          </NotificationProvider>
+        </SmoothScroll>
       </body>
     </html>
   );

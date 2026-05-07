@@ -83,7 +83,7 @@ export default function ContactPage() {
                 </button>
 
                 <div className={`overflow-hidden transition-all duration-700 ease-in-out ${openIndex === idx ? 'max-h-64 opacity-100 mb-8' : 'max-h-0 opacity-0'}`}>
-                  <p className="text-sm text-gray-500 leading-relaxed mb-6 font-light">
+                  <p className="text-sm text-gray-700 leading-relaxed mb-6 font-light">
                     {item.content}
                   </p>
                   <a 
@@ -119,18 +119,6 @@ export default function ContactPage() {
                    <p className="text-sm text-gray-600 font-light">Monday — Sunday</p>
                    <p className="text-sm text-gray-600 font-light">11:00 AM — 08:00 PM IST</p>
                 </div>
-             </div>
-          </div>
-
-          {/* FINAL NOTE */}
-          <div className="pt-20 border-t border-gray-50 text-center">
-             <p className="text-[10px] tracking-[0.4em] uppercase text-gray-300 mb-8">
-               © LALIT DALMIA. All rights reserved.
-             </p>
-             <div className="flex justify-center gap-8">
-               <div className="w-1.5 h-1.5 rounded-full bg-gray-100" />
-               <div className="w-1.5 h-1.5 rounded-full bg-gray-200" />
-               <div className="w-1.5 h-1.5 rounded-full bg-gray-100" />
              </div>
           </div>
         </div>

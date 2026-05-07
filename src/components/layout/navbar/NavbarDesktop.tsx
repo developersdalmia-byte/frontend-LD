@@ -77,7 +77,7 @@ export default function NavbarDesktop({ hasScrolled, onLoginOpen, onSearchOpen }
 
         {/* CENTER LOGO — both variants rendered, toggled via opacity to prevent blur */}
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50">
-          <Link href="/" className="relative block h-[110px] w-[140px]">
+          <Link href="/" aria-label="Lalit Dalmia Home" className="relative block h-[110px] w-[140px]">
             <Image
               src="https://api.lalitdalmia.com/uploads/websiteImages/Logo/LD-LOGO-BLK.webp"
               alt="Lalit Dalmia Logo"
@@ -102,38 +102,79 @@ export default function NavbarDesktop({ hasScrolled, onLoginOpen, onSearchOpen }
         {/* RIGHT ICONS */}
         <div className="flex items-center justify-end gap-6 w-fit min-w-[200px]">
 
-          <Search
+          <button 
             onClick={onSearchOpen}
-            className={`cursor-pointer transition-colors duration-300 ${iconColor}`}
-            size={20}
-          />
+            aria-label="Search"
+            className={`transition-colors duration-300 ${iconColor}`}
+          >
+            <Search size={20} />
+          </button>
 
           {/* Divider */}
           <div className={`h-6 w-[1px] ${isWhite ? "bg-gray-300" : "bg-white/30"}`} />
 
-          {/* Auth */}
-          {isLoggedIn ? (
-            <div className="flex items-center gap-3">
-              <span
-                className={`text-[10px] tracking-[0.2em] uppercase ${iconColor}`}
-              >
-                {user?.name?.split(" ")[0]}
-              </span>
+          {/* Auth / Profile Dropdown */}
+          <div className="relative py-2">
+            <div className="group/profile">
               <button
-                onClick={logout}
-                className={`${iconColor} hover:opacity-70`}
+                onClick={!isLoggedIn ? onLoginOpen : undefined}
+                className="flex items-center gap-1.5 transition-opacity"
+                aria-label="Profile"
               >
-                <LogOut size={18} />
+                <User
+                  className={`${iconColor} transition-colors duration-300`}
+                  size={20}
+                />
+                {isLoggedIn && (
+                  <span className={`text-[10px] tracking-[0.15em] uppercase ${iconColor}`}>
+                    {user?.name?.split(" ")[0]}
+                  </span>
+                )}
               </button>
+
+              {/* Dropdown Menu — Anita Dongre style */}
+              <div className="absolute right-0 top-full pt-3 opacity-0 invisible group-hover/profile:opacity-100 group-hover/profile:visible transition-all duration-200 z-[100] translate-y-1 group-hover/profile:translate-y-0">
+                <div className="bg-white w-[200px] shadow-[0_4px_24px_rgba(0,0,0,0.12)] border border-gray-100">
+
+                  {/* Log In / Sign Up OR Log Out — first row with bottom divider */}
+                  <button
+                    onClick={isLoggedIn ? logout : onLoginOpen}
+                    className="w-full px-5 py-3.5 text-left text-[12px] text-gray-800 hover:text-black font-normal border-b border-gray-200 transition-colors duration-150"
+                  >
+                    {isLoggedIn ? "Log Out" : "Log In / Sign Up"}
+                  </button>
+
+                  {/* List Items */}
+                  <div className="flex flex-col py-1">
+                    <button
+                      onClick={openWishlist}
+                      className="px-5 py-2.5 text-left text-[12px] text-gray-700 hover:text-black hover:bg-gray-50 transition-colors duration-150"
+                    >
+                      Wishlist
+                    </button>
+                    <Link
+                      href="/gift-cards"
+                      className="px-5 py-2.5 text-[12px] text-gray-700 hover:text-black hover:bg-gray-50 transition-colors duration-150 block"
+                    >
+                      Gift Card
+                    </Link>
+                    <Link
+                      href="/orders"
+                      className="px-5 py-2.5 text-[12px] text-gray-700 hover:text-black hover:bg-gray-50 transition-colors duration-150 block"
+                    >
+                      My Orders
+                    </Link>
+                    <Link
+                      href="/contact-us"
+                      className="px-5 py-2.5 text-[12px] text-gray-700 hover:text-black hover:bg-gray-50 transition-colors duration-150 block"
+                    >
+                      Contact Us
+                    </Link>
+                  </div>
+                </div>
+              </div>
             </div>
-          ) : (
-            <button onClick={onLoginOpen} aria-label="Login">
-              <User
-                className={`${iconColor} transition-colors duration-300`}
-                size={20}
-              />
-            </button>
-          )}
+          </div>
 
           {/* Wishlist */}
           <button

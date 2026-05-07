@@ -59,9 +59,9 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-6 md:px-10 py-20 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12">
         {Object.entries(FOOTER_LINKS).map(([heading, links]) => (
           <div key={heading}>
-            <h4 className="text-sm text-gray-900 mb-6 uppercase font-medium">
+            <h3 className="text-sm text-gray-900 mb-6 uppercase font-medium">
               {heading}
-            </h4>
+            </h3>
             <ul className="space-y-3 text-[15px] leading-[2]">
               {links.map((l) => (
                 <li key={l.label}>
@@ -79,9 +79,9 @@ export default function Footer() {
 
         {/* NEED HELP? */}
         <div>
-          <h4 className="text-sm text-gray-900 mb-8 uppercase font-medium tracking-[0.1em]">
+          <h3 className="text-sm text-gray-900 mb-8 uppercase font-medium tracking-[0.1em]">
             Need Help?
-          </h4>
+          </h3>
 
           <div className="space-y-6">
             <Link
@@ -139,7 +139,9 @@ export default function Footer() {
                 key={s.label}
                 href={s.href}
                 target="_blank"
-                className="w-10 h-10 border border-black/10 flex items-center justify-center text-black hover:border-black transition duration-300"
+                rel="noopener noreferrer"
+                aria-label={s.label}
+                className="w-12 h-12 border border-black/10 flex items-center justify-center text-black hover:border-black transition duration-300"
               >
                 <Icon size={16} />
               </a>

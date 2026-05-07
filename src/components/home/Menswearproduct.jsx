@@ -13,7 +13,7 @@ const playfair = Playfair_Display({
 });
 
 export default function MenswearProduct() {
-  const { products, loading, error, refresh } = useProducts({ limit: 4, category: "mens-wear" });
+  const { products, loading, error, refresh } = useProducts({ limit: 4, mainCategory: "mens-wear" });
 
   return (
     <section className="w-full bg-[#fdfcfb] py-10 px-5 md:px-12">

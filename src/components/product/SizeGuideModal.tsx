@@ -3,6 +3,7 @@
 import { X } from "lucide-react";
 import { Playfair_Display } from "next/font/google";
 import { useEffect } from "react";
+import { ProductFitting } from "@/types";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -15,9 +16,10 @@ interface SizeGuideModalProps {
   onClose: () => void;
   category?: string;
   subcategory?: string;
+  fitting?: ProductFitting;
 }
 
-export default function SizeGuideModal({ isOpen, onClose, category, subcategory }: SizeGuideModalProps) {
+export default function SizeGuideModal({ isOpen, onClose, category, subcategory, fitting }: SizeGuideModalProps) {
   // Prevent scrolling when modal is open
   useEffect(() => {
     if (isOpen) {
@@ -35,7 +37,7 @@ export default function SizeGuideModal({ isOpen, onClose, category, subcategory 
   const isMenswear = category?.toLowerCase() === "menswear";
   
   // Default Womenswear size guide
-  const womensData = [
+  const womensDefaults = [
     { size: "XS", bust: "32", waist: "26", hip: "36" },
     { size: "S", bust: "34", waist: "28", hip: "38" },
     { size: "M", bust: "36", waist: "30", hip: "40" },
@@ -45,7 +47,7 @@ export default function SizeGuideModal({ isOpen, onClose, category, subcategory 
   ];
 
   // Menswear size guide
-  const mensData = [
+  const mensDefaults = [
     { size: "XS", chest: "36", waist: "30", shoulder: "17" },
     { size: "S", chest: "38", waist: "32", shoulder: "17.5" },
     { size: "M", chest: "40", waist: "34", shoulder: "18" },
@@ -54,7 +56,26 @@ export default function SizeGuideModal({ isOpen, onClose, category, subcategory 
     { size: "XXL", chest: "46", waist: "40", shoulder: "19.5" },
   ];
 
-  const tableData = isMenswear ? mensData : womensData;
+  // Dynamic logic: If fitting is provided, map it to the table structure
+  let tableData: any[] = [];
+  if (fitting && Object.keys(fitting).length > 0) {
+    tableData = Object.entries(fitting).map(([size, measurements]) => ({
+      size,
+      ...measurements,
+      // For menswear, bust is often labeled as chest in API attributes sometimes, but the fitting object is generic
+      chest: (measurements as any).chest || measurements.bust || "-",
+      bust: measurements.bust || "-",
+      waist: measurements.waist || "-",
+      hip: measurements.hip || "-",
+      shoulder: measurements.shoulder || "-",
+    }));
+    // Sort sizes logically if possible (standard order)
+    const order = ["XS", "S", "M", "L", "XL", "XXL", "3XL"];
+    tableData.sort((a, b) => order.indexOf(a.size) - order.indexOf(b.size));
+  } else {
+    tableData = isMenswear ? mensDefaults : womensDefaults;
+  }
+
   const isLehenga = subcategory?.toLowerCase().includes("lehenga");
 
   return (

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Playfair_Display } from "next/font/google";
 import { 
   getPublicStores, 
@@ -22,6 +23,24 @@ export default function AppointmentPage() {
   const [submitting, setSubmitting] = useState(false);
   const [successData, setSuccessData] = useState<AppointmentResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [countdown, setCountdown] = useState(10);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (successData) {
+      const timer = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            router.push("/");
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [successData, router]);
 
   const [formData, setFormData] = useState({
     customerName: "",
@@ -91,17 +110,35 @@ export default function AppointmentPage() {
   if (successData) {
     const appointment = successData.appointment;
     return (
-      <div className="min-h-screen bg-[#ffff] pt-[180px] pb-24 px-6 md:px-12 flex flex-col items-center justify-center text-center">
-        <CheckCircle size={64} className="text-green-600 mb-6" />
-        <h1 className={`${playfair.className} text-3xl md:text-5xl mb-6`}>
-          Appointment Confirmed
-        </h1>
-        <p className="text-gray-600 mb-8 max-w-md">
-          Thank you, {appointment.customerName}. Your appointment at {appointment.storeId.name} has been scheduled.
-        </p>
-        <Link href="/" className="bg-black text-white px-12 py-3 uppercase tracking-[0.2em] hover:opacity-80 transition">
-          Back to Home
-        </Link>
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center px-6 text-center animate-in fade-in duration-1000 pt-20">
+        <div className="max-w-2xl w-full space-y-12">
+          <div className="flex justify-center">
+            <div className="w-24 h-24 rounded-full border-[3px] border-[#22c55e] flex items-center justify-center animate-in zoom-in duration-700">
+              <CheckCircle size={48} className="text-[#22c55e]" strokeWidth={1.5} />
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <h1 className={`${playfair.className} text-5xl md:text-7xl font-normal text-black tracking-tight`}>
+              Appointment Confirmed
+            </h1>
+            <p className="text-[#6b6560] text-lg md:text-xl font-light max-w-lg mx-auto leading-relaxed">
+              Thank you, {appointment.customerName}. Your appointment at <span className="font-bold text-black">{appointment.storeId.name}</span> has been scheduled successfully.
+            </p>
+          </div>
+
+          <div className="pt-8 flex flex-col items-center gap-8">
+            <Link 
+              href="/" 
+              className="bg-black text-white px-20 py-5 text-[12px] tracking-[0.5em] uppercase font-bold hover:bg-[#1a1a1a] transition-all duration-300 w-full md:w-auto"
+            >
+              Back to Home
+            </Link>
+            <p className="text-[10px] text-[#9c9690] tracking-[0.3em] uppercase">
+              Auto-redirecting in <span className="text-black font-bold">{countdown}</span> seconds
+            </p>
+          </div>
+        </div>
       </div>
     );
   }

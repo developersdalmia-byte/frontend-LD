@@ -14,6 +14,7 @@ const playfair = Playfair_Display({
 export default function SareesProductGrid() {
   const { products, loading, error, refresh } = useProducts({
     limit: 4,
+    mainCategory: "womens-wear",
     category: "saree",
     // If the backend supports subcategory filtering, add: subcategory: "sarees"
   });

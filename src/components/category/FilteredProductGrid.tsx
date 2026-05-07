@@ -15,39 +15,42 @@ const playfair = Playfair_Display({
 });
 
 interface Props {
-  mainCategorySlug?: string;
   initialFilters?: {
+    mainCategory?: string;
     category?: string;
     occasion?: string;
-    subcategory?: string;
-    sort?: string;
+    subCategory?: string;
+    sort?: "price" | "-price" | "newest";
+    readyToShip?: boolean;
     availability?: string;
+    minPrice?: number;
+    maxPrice?: number;
   };
 }
 
-function FilteredProductGridContent({ mainCategorySlug, initialFilters }: Props) {
+function FilteredProductGridContent({ initialFilters }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const [activeFilters, setActiveFilters] = useState<any>({
     ...initialFilters,
-    category: mainCategorySlug || initialFilters?.category || "",
   });
   const [gridLayout, setGridLayout] = useState<2 | 4>(4);
 
   useEffect(() => {
     setActiveFilters({
       ...initialFilters,
-      category: mainCategorySlug || initialFilters?.category || "",
     });
   }, [
-    mainCategorySlug,
+    initialFilters?.mainCategory,
     initialFilters?.category,
-    initialFilters?.subcategory,
+    initialFilters?.subCategory,
     initialFilters?.occasion,
     initialFilters?.sort,
     initialFilters?.availability,
+    initialFilters?.minPrice,
+    initialFilters?.maxPrice,
   ]);
 
   // Senior Fix: Sync internal filter changes back to the URL strictly
@@ -55,11 +58,15 @@ function FilteredProductGridContent({ mainCategorySlug, initialFilters }: Props)
     setActiveFilters(newFilters);
     
     const params = new URLSearchParams();
+    if (newFilters.mainCategory) params.set("mainCategory", newFilters.mainCategory);
     if (newFilters.category) params.set("category", newFilters.category);
-    if (newFilters.subcategory) params.set("subcategory", newFilters.subcategory);
+    if (newFilters.subCategory) params.set("subCategory", newFilters.subCategory);
     if (newFilters.occasion) params.set("occasion", newFilters.occasion);
     if (newFilters.sort) params.set("sort", newFilters.sort);
-    if (newFilters.availability) params.set("availability", newFilters.availability);
+    if (newFilters.readyToShip) params.set("availability", "available");
+    else if (newFilters.availability) params.set("availability", newFilters.availability);
+    if (newFilters.minPrice !== undefined) params.set("minPrice", newFilters.minPrice.toString());
+    if (newFilters.maxPrice !== undefined) params.set("maxPrice", newFilters.maxPrice.toString());
 
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   };
@@ -67,17 +74,19 @@ function FilteredProductGridContent({ mainCategorySlug, initialFilters }: Props)
   // Senior Fix: Pass all filters EXACTLY to the API hook
   const { products, loading, loadingMore, error, hasMore, loadMore, refresh, total } = useProducts({
     limit: 24,
+    mainCategory: activeFilters.mainCategory || undefined,
     category: activeFilters.category || undefined,
-    subcategory: activeFilters.subcategory || undefined,
+    subCategory: activeFilters.subCategory || undefined,
     occasion: activeFilters.occasion || undefined,
     sort: activeFilters.sort || undefined,
-    availability: activeFilters.availability || (activeFilters.readyToShip ? "available" : undefined),
+    availability: activeFilters.readyToShip ? "available" : (activeFilters.availability || undefined),
+    minPrice: activeFilters.minPrice !== undefined ? Number(activeFilters.minPrice) : undefined,
+    maxPrice: activeFilters.maxPrice !== undefined ? Number(activeFilters.maxPrice) : undefined,
   });
 
   return (
     <div className="w-full bg-[#fcfbf9] min-h-screen">
       <ProductFilterBar
-        currentMainCategory={activeFilters.category}
         totalProducts={total}
         onFilterChange={handleFilterChange}
         initialFilters={activeFilters}

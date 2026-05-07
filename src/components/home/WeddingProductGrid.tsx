@@ -15,7 +15,7 @@ const playfair = Playfair_Display({
 export default function WeddingProductGrid() {
   const { products, loading, error, refresh } = useProducts({
     limit: 4,
-    category: "mens-wear",
+    mainCategory: "weddings",
   });
 
   return (
