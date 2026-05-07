@@ -18,7 +18,7 @@ const HISTORY_DATA = [
     year: "2015",
     title: "A New Shoreline",
     subtitle: "Indian Beach Fashion Week",
-    image: "/2015 IBFW 1_result.avif",
+    image: "/2015_result.avif",
     content: "Lalit found himself surrounded by the vast sea, cool breeze, and unmistakable Goan vibes at Indian Beach Fashion Week. The first half of the show was spiced with bold bikinis and swimwear, before he turned the runway upside down with his striking <i>zombie brides </i>. Blending the unexpected with tradition, Lalit delivered a clear message to the world—he is unapologetically experimental.",
     quote: "Unapologetically experimental. Fearlessly original.",
   },
@@ -35,7 +35,7 @@ const HISTORY_DATA = [
     year: "2017",
     title: "The Year of Dominance",
     subtitle: "Chennai Open · Tech Fashion Tour · Delhi Times Fashion Week",
-    image: "/2017 TFT 3 Edited_result.avif",
+    image: "/2017_result.avif",
     content:
       "From dressing tennis superstars Daniil Medvedev and Leander Paes at Chennai Open Fashion Week to amplifying the spectacle of Tech Fashion Tour with Esha Gupta as the showstopper, 2017 marked a year of complete dominance for Lalit. From his presence at Delhi Times Fashion Week to showcasing his collection La Moda at Indian Beach Fashion Week, Lalit remained the talk of the town throughout the year.",
     quote: "A year of complete dominance across every runway.",
@@ -44,7 +44,7 @@ const HISTORY_DATA = [
     year: "2018",
     title: "The Shahi Kothi",
     subtitle: "Delhi 6",
-    image: "/2018 tech fashion tour-_result.avif",
+    image: "/2018_result.avif",
     content:
       "Carrying forward the legacy of Old Delhi, Lalit found a new home for his evolving design philosophy—Shahi Kothi, in the heart of Delhi 6. Here, his couture found its roots in the centuries-old craftsmanship and traditions of Old Delhi. Alongside this, the evening at Tech Fashion Tour 4.0 was elevated with Akshay Kumar as the showstopper.",
     quote: "Rooted in centuries-old craft. Evolved for the present.",
@@ -80,7 +80,7 @@ const HISTORY_DATA = [
     year: "2023",
     title: "Global Stage, Bold Expression",
     subtitle: "Global Indian Couture Week",
-    image: "/2023 gicw 2_result.avif",
+    image: "/2023_result.avif",
     content:
       "The spotlight shifted to the global stage with GICW 4.0, where Lalit's collection embraced avant-garde couture and experimental luxury. The runway culminated with Georgia Andriani as the showstopper, adding an international allure to the moment.",
     quote: "Avant-garde couture. International allure. Bold expression.",
@@ -89,7 +89,7 @@ const HISTORY_DATA = [
     year: "2024",
     title: "The Grand Finale",
     subtitle: "GICW 2024",
-    image: "/2024 gicw 3_result.avif",
+    image: "/2024_result.avif",
     content:
       "Lalit commanded the grand finale at Global Indian Couture Week 2024, marking a moment of scale and authority. The collection moved between bridal couture and statement pieces, with each look balancing tradition and a sharp modern voice. It marked the arrival of a vision fully realized.",
     quote: "A vision — fully realized.",
