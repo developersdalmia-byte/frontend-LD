@@ -100,6 +100,13 @@ export default function CheckoutPage() {
     }
   }, [isLoggedIn]);
 
+  // Senior UX: Auto-scroll to top when order is confirmed to ensure success view is visible
+  useEffect(() => {
+    if (isOrdered) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [isOrdered]);
+
   const loadAddresses = async () => {
     try {
       const addresses = await getAddresses();
