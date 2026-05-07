@@ -8,87 +8,87 @@ import type {
 export const NAV_ITEMS: NavItem[] = [
   {
     label: "WOMEN",
-    href: "/products?category=womenswear",
+    href: "/products?mainCategory=womens-wear",
     children: [
       {
         label: "New Arrivals",
-        href: "/products?category=womenswear&sort=newest",
+        href: "/products?mainCategory=womens-wear&sort=newest",
         children: [
-          { label: "New Arrivals", href: "/products?category=womenswear&sort=newest" },
+          { label: "New Arrivals", href: "/products?mainCategory=womens-wear&sort=newest" },
         ],
       },
       {
         label: "Clothing",
-        href: "/products?category=womenswear",
+        href: "/products?mainCategory=womens-wear",
         children: [
-          { label: "Sarees & Blouses", href: "/products?category=womenswear&subcategory=saree" },
-          { label: "Lehenga Sets", href: "/products?category=womenswear&subcategory=lehenga" },
-          { label: "Indowestern Jackets", href: "/products?category=womenswear&subcategory=jacket" },
-          { label: "Gowns", href: "/products?category=womenswear&subcategory=gown" },
+          { label: "Sarees & Blouses", href: "/products?mainCategory=womens-wear&category=saree" },
+          { label: "Lehenga Sets", href: "/products?mainCategory=womens-wear&category=lehenga" },
+          { label: "Indowestern Jackets", href: "/products?mainCategory=womens-wear&category=jacket" },
+          { label: "Gowns", href: "/products?mainCategory=womens-wear&category=gown" },
         ],
       },
       {
         label: "Shop By Occasion",
-        href: "/products?category=womenswear",
+        href: "/products?mainCategory=womens-wear",
         children: [
-          { label: "Wedding", href: "/products?category=womenswear&occasion=wedding" },
-          { label: "Engagement", href: "/products?category=womenswear&occasion=engagement" },
-          { label: "Sangeet", href: "/products?category=womenswear&occasion=sangeet" },
-          { label: "Reception", href: "/products?category=womenswear&occasion=reception" },
+          { label: "Wedding", href: "/products?mainCategory=womens-wear&occasion=wedding" },
+          { label: "Engagement", href: "/products?mainCategory=womens-wear&occasion=engagement" },
+          { label: "Sangeet", href: "/products?mainCategory=womens-wear&occasion=sangeet" },
+          { label: "Reception", href: "/products?mainCategory=womens-wear&occasion=reception" },
         ],
       },
     ],
   },
   {
     label: "MEN",
-    href: "/products?category=menswear",
+    href: "/products?mainCategory=mens-wear",
     children: [
       {
         label: "New Arrival",
-        href: "/products?category=menswear&sort=newest",
+        href: "/products?mainCategory=mens-wear&sort=newest",
         children: [
-          { label: "New Arrivals", href: "/products?category=menswear&sort=newest" },
+          { label: "New Arrivals", href: "/products?mainCategory=mens-wear&sort=newest" },
         ],
       },
       {
         label: "Clothing",
-        href: "/products?category=menswear",
+        href: "/products?mainCategory=mens-wear",
         children: [
-          { label: "Sherwanis Sets", href: "/products?category=menswear&subcategory=sherwani" },
-          { label: "Kurtas Sets", href: "/products?category=menswear&subcategory=kurta" },
-          { label: "Bandgala Sets", href: "/products?category=menswear&subcategory=bandgala" },
+          { label: "Sherwanis Sets", href: "/products?mainCategory=mens-wear&category=sherwani" },
+          { label: "Kurtas Sets", href: "/products?mainCategory=mens-wear&category=kurta" },
+          { label: "Bandgala Sets", href: "/products?mainCategory=mens-wear&category=bandgala" },
         ],
       },
       {
         label: "Shop By Occasion",
-        href: "/products?category=menswear",
+        href: "/products?mainCategory=mens-wear",
         children: [
-          { label: "Wedding", href: "/products?category=menswear&occasion=wedding" },
-          { label: "Engagement", href: "/products?category=menswear&occasion=engagement" },
-          { label: "Sangeet", href: "/products?category=menswear&occasion=sangeet" },
-          { label: "Reception", href: "/products?category=menswear&occasion=reception" },
+          { label: "Wedding", href: "/products?mainCategory=mens-wear&occasion=wedding" },
+          { label: "Engagement", href: "/products?mainCategory=mens-wear&occasion=engagement" },
+          { label: "Sangeet", href: "/products?mainCategory=mens-wear&occasion=sangeet" },
+          { label: "Reception", href: "/products?mainCategory=mens-wear&occasion=reception" },
         ],
       },
     ],
   },
   {
     label: "WEDDING",
-    href: "/products?category=weddings",
+    href: "/products?mainCategory=weddings",
     children: [
       {
         label: "New Arrivals",
-        href: "/products?category=weddings&sort=newest",
+        href: "/products?mainCategory=weddings&sort=newest",
         children: [
-          { label: "New Arrivals", href: "/products?category=weddings&sort=newest" },
+          { label: "New Arrivals", href: "/products?mainCategory=weddings&sort=newest" },
         ],
       },
       {
         label: "Couture",
-        href: "/products?category=weddings",
+        href: "/products?mainCategory=weddings",
         children: [
-          { label: "Nikah & Valima", href: "/products?category=weddings&subcategory=nikah" },
-          { label: "Anant Karaj", href: "/products?category=weddings&subcategory=anant-karaj" },
-          { label: "Sahi Vivah", href: "/products?category=weddings&subcategory=sahi-vivah" },
+          { label: "Nikah & Valima", href: "/products?mainCategory=weddings&category=nikah" },
+          { label: "Anant Karaj", href: "/products?mainCategory=weddings&category=anant-karaj" },
+          { label: "Sahi Vivah", href: "/products?mainCategory=weddings&category=sahi-vivah" },
         ],
       },
     ],

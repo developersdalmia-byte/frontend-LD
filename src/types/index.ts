@@ -5,13 +5,36 @@ export type ProductCategory =
   | "accessories"
   | "jewellery";
 
+export interface ProductFitting {
+  [size: string]: {
+    bust?: string;
+    waist?: string;
+    hip?: string;
+    shoulder?: string;
+  };
+}
+
+export interface ProductDetails {
+  description?: string;
+  mrpIncludes?: string;
+  material?: string;
+  color?: string;
+  careGuide?: string;
+  madeToOrder?: string;
+  modelInfo?: string;
+}
+
 export interface Product {
   id: string;
   name: string;
   slug: string;
   category: ProductCategory;
   subcategory?: string;
+  subCategoryId?: string;
+  categoryId?: string;
+  mainCategoryId?: string;
   price: number;
+  priceSubtitle?: string;
   currency: string;
   images: string[];
   sizes: string[];
@@ -19,6 +42,18 @@ export interface Product {
   fabric?: string;
   care?: string;
   availability: "available" | "made-to-order" | "sold-out";
+  shippingTime?: string;
+  shippingAndDelivery?: string;
+  fitting?: ProductFitting;
+  productDetails?: ProductDetails;
+  sku?: string;
+  manufacturerDetails?: {
+    address?: string;
+    email?: string;
+    phone?: string;
+    countryOfOrigin?: string;
+  };
+  disclaimer?: string;
   collection?: string;
   featured: boolean;
   new: boolean;
@@ -27,7 +62,10 @@ export interface Product {
     occasion?: string;
     style?: string;
     weddingType?: string[];
+    fabric?: string;
   };
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Collection {

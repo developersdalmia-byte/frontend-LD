@@ -22,29 +22,35 @@ export interface OrderItemData {
 }
 
 export interface CreateOrderPayload {
+  orderType: "ONLINE";
+  source: "WEBSITE";
   customer: {
     name: string;
-    phone: string;
     email: string;
+    phone: string;
   };
-  products: OrderItemData[];
-  address: {
+  shippingAddress: {
     name: string;
     phone: string;
-    email: string;
-    pincode: string;
-    state: string;
+    line1: string;
     city: string;
-    addressLine: string;
+    state: string;
+    postalCode: string;
+    country: string;
   };
+  items: OrderItemData[];
+  discount?: number;
+  tax?: number;
 }
 
 export interface OrderResponseApi {
-  orderId: string;
   _id: string;
-  orderType: string;
+  orderNumber: string;
   status: string;
-  paymentStatus: string;
+  orderType: string;
+  source: string;
+  items: OrderItemData[];
+  grandTotal: number;
 }
 
 /**
@@ -58,7 +64,7 @@ export async function createOrder(payload: CreateOrderPayload): Promise<OrderRes
   });
 
   if (!response.data) {
-    throw new Error("Failed to retrieve order data from response");
+    throw new Error(response.message || "Failed to create order");
   }
 
   return response.data;

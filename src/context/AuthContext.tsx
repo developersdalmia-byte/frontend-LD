@@ -9,6 +9,7 @@ import {
   useMemo,
   ReactNode,
 } from "react";
+import { useNotification } from "./NotificationContext";
 
 interface AuthUser {
   phone: string;
@@ -46,6 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(getInitialUser);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [pendingRedirect, setPendingRedirect] = useState<string | null>(null);
+  const { showNotification } = useNotification();
 
   const openLoginModal = useCallback((redirectPath?: string) => {
     if (typeof redirectPath === "string") {
@@ -106,8 +108,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.setItem("accessToken", accessToken);
         localStorage.setItem("refreshToken", refreshToken);
         localStorage.setItem("authUser", JSON.stringify(authUser));
-
         setUser(authUser);
+        showNotification("success", `Welcome back, ${authUser.name}!`, "Authentication Successful");
         // Clean URL without refresh
         window.history.replaceState({}, document.title, window.location.pathname);
 
@@ -135,8 +137,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem("refreshToken", refreshToken);
       localStorage.setItem("authUser", JSON.stringify(authUser));
       setUser(authUser);
+      showNotification("success", `Welcome back, ${authUser.name}!`, "Login Successful");
     },
-    []
+    [showNotification]
   );
 
   const logout = useCallback(() => {
@@ -146,7 +149,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     sessionStorage.removeItem("pendingRedirect");
     setUser(null);
     setPendingRedirect(null);
-  }, []);
+    showNotification("info", "You have been logged out successfully.", "Logged Out");
+  }, [showNotification]);
 
   useEffect(() => {
     const handleAuthFailure = () => {

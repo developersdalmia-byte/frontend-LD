@@ -6,12 +6,15 @@ import { getProducts } from "@/services/product.service";
 
 interface UseProductsOptions {
   limit?: number;
+  mainCategory?: string;
   category?: string;
-  subcategory?: string;
+  subCategory?: string;
   occasion?: string;
   search?: string;
   sort?: string;
   availability?: string;
+  minPrice?: number;
+  maxPrice?: number;
   initialPage?: number;
   pollInterval?: number;
 }
@@ -33,12 +36,15 @@ export function useProducts(
 ): UseProductsResult {
   const {
     limit = 20,
+    mainCategory,
     category,
-    subcategory,
+    subCategory,
     occasion,
     search,
     sort,
     availability,
+    minPrice,
+    maxPrice,
     initialPage = 1,
     pollInterval = 0,
   } = options;
@@ -79,12 +85,15 @@ export function useProducts(
         const result = await getProducts({
           page: pageNum,
           limit,
+          mainCategory,
           category,
-          subcategory,
+          subCategory,
           occasion,
           search,
           sort,
           availability,
+          minPrice,
+          maxPrice,
         });
 
         setProducts((prev) =>
@@ -113,7 +122,7 @@ export function useProducts(
         setLoadingMore(false);
       }
     },
-    [limit, category, subcategory, occasion, search, sort, availability]
+    [limit, mainCategory, category, subCategory, occasion, search, sort, availability, minPrice, maxPrice]
   );
 
   /**
@@ -133,7 +142,7 @@ export function useProducts(
       isMounted = false;
       abortControllerRef.current?.abort();
     };
-  }, [fetchProducts, initialPage, category, subcategory, occasion, search, sort, availability]);
+  }, [fetchProducts, initialPage, mainCategory, category, subCategory, occasion, search, sort, availability, minPrice, maxPrice]);
 
   /**
    * Polling (optional)

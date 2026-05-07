@@ -1,5 +1,5 @@
 import { apiClient } from "@/lib/apiClient";
-import type { Product, PaginatedResponse } from "@/types";
+import type { Product, PaginatedResponse, ProductCategory } from "@/types";
 
 /**
  * Raw product shape from the backend API
@@ -7,9 +7,52 @@ import type { Product, PaginatedResponse } from "@/types";
 export interface ApiProduct {
   _id: string;
   title: string;
+  slug: string;
   price: number;
-  sizes?: string[];
-  images?: string[];
+  priceSubtitle?: string;
+  sizes: string[];
+  images: string[];
+  shippingTime?: string;
+  shippingAndDelivery?: string;
+  fitting?: {
+    [size: string]: {
+      bust?: string;
+      waist?: string;
+      hip?: string;
+      shoulder?: string;
+    };
+  };
+  productDetails?: {
+    description?: string;
+    mrpIncludes?: string;
+    material?: string;
+    color?: string;
+    careGuide?: string;
+    madeToOrder?: string;
+    modelInfo?: string;
+  };
+  sku?: string;
+  manufacturerDetails?: {
+    address?: string;
+    email?: string;
+    phone?: string;
+    countryOfOrigin?: string;
+  };
+  disclaimer?: string;
+  attributes?: {
+    occasion?: string;
+    fabric?: string;
+    style?: string;
+    weddingType?: string[];
+  };
+  mainCategoryId?: { _id: string; name: string; slug: string; isActive: boolean };
+  categoryId?: { _id: string; name: string; slug: string; isActive: boolean };
+  subCategoryId?: { _id: string; name: string; slug: string; isActive: boolean };
+  inventoryType?: string;
+  isActive: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  // Legacy fields fallback
   description?: string;
   fabric?: string;
   care?: string;
@@ -18,14 +61,6 @@ export interface ApiProduct {
   featured?: boolean;
   new?: boolean;
   tags?: string[];
-  category?: string;
-  subcategory?: string;
-  attributes?: {
-    occasion?: string;
-    fabric?: string;
-    style?: string;
-    weddingType?: string[];
-  };
 }
 
 /**
@@ -48,30 +83,52 @@ export interface ProductsApiResponse {
 }
 
 export function mapApiProduct(p: ApiProduct): Product {
-  const id = p._id || (p as any).id;
+  const id = p._id;
+  
+  // Normalize category slugs for frontend consumption
+  const mapMainCategory = (slug?: string): ProductCategory => {
+    if (slug === "womens-wear") return "womenswear";
+    if (slug === "mens-wear") return "menswear";
+    return (slug as any) || "womenswear";
+  };
+
   return {
     id: id,
     name: p.title,
-    slug: id, // Ideally, backend should provide a slug
-    category: (p.category as Product["category"]) || ("" as any),
-    subcategory: p.subcategory,
-    price: p.price || 0,
-    currency: "INR", // Keep currency constant as it's an Indian brand
-    images: p.images && p.images.length > 0 ? p.images : [], // No fake local images
-    description: p.description || "",
-    fabric: p.attributes?.fabric || p.fabric || "",
-    care: p.care || "",
-    availability: p.availability || "available",
+    slug: p.slug || id,
+    category: mapMainCategory(p.mainCategoryId?.slug),
+    subcategory: p.categoryId?.name,
+    subCategoryId: p.subCategoryId?._id,
+    categoryId: p.categoryId?._id,
+    mainCategoryId: p.mainCategoryId?._id,
+    price: typeof p.price === "number" ? p.price : parseFloat(String(p.price).replace(/[^0-9.]/g, "")) || 0,
+    priceSubtitle: p.priceSubtitle,
+    currency: "INR",
+    images: p.images || [],
+    sizes: p.sizes || [],
+    description: p.productDetails?.description || p.description || "",
+    fabric: p.attributes?.fabric || p.productDetails?.material || p.fabric || "",
+    care: p.productDetails?.careGuide || p.care || "",
+    availability: p.availability || (p.productDetails?.madeToOrder ? "made-to-order" : "available"),
+    shippingTime: p.shippingTime,
+    shippingAndDelivery: p.shippingAndDelivery,
+    fitting: p.fitting,
+    productDetails: p.productDetails,
+    sku: p.sku,
+    manufacturerDetails: p.manufacturerDetails,
+    disclaimer: p.disclaimer,
     collection: p.collection || "",
     featured: p.featured || false,
     new: p.new || false,
     tags: p.tags || [],
-    sizes: p.sizes || ["S", "M", "L"], // fallback to default sizes if API doesn't provide
     attributes: p.attributes ? {
       occasion: p.attributes.occasion,
       style: p.attributes.style,
       weddingType: p.attributes.weddingType,
+      fabric: p.attributes.fabric
     } : undefined,
+    createdAt: p.createdAt,
+    updatedAt: p.updatedAt
   };
 }
 
@@ -86,31 +143,42 @@ const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 export async function getProducts(params: {
   page?: number;
   limit?: number;
+  mainCategory?: string;
   category?: string;
-  subcategory?: string;
+  subCategory?: string;
   occasion?: string;
   search?: string;
   sort?: string;
   availability?: string;
+  minPrice?: number;
+  maxPrice?: number;
 } = {}): Promise<{ products: Product[]; hasMore: boolean; total: number }> {
-  const { page = 1, limit = 20, category, subcategory, occasion, search, sort, availability } = params;
-
-  // Map frontend main categories to backend expected mainCategory slugs
-  const mapMainCategory = (cat?: string) => {
-    if (cat === "womenswear") return "womens-wear";
-    if (cat === "menswear") return "mens-wear";
-    return cat;
-  };
+  const { 
+    page = 1, 
+    limit = 20, 
+    mainCategory, 
+    category, 
+    subCategory, 
+    occasion, 
+    search, 
+    sort, 
+    availability,
+    minPrice,
+    maxPrice
+  } = params;
 
   const query = new URLSearchParams({
     page: String(page),
     limit: String(limit),
-    ...(category && { mainCategory: mapMainCategory(category) }),
-    ...(subcategory && { category: subcategory }), // frontend subcategory = backend category
+    ...(mainCategory && { mainCategory }),
+    ...(category && { category }),
+    ...(subCategory && { subCategory }),
     ...(occasion && { occasion }),
     ...(search && { search }),
     ...(sort && { sort }),
     ...(availability && { availability }),
+    ...(minPrice !== undefined && { minPrice: String(minPrice) }),
+    ...(maxPrice !== undefined && { maxPrice: String(maxPrice) }),
   });
 
   const cacheKey = query.toString();
@@ -131,7 +199,17 @@ export async function getProducts(params: {
     return { products: [], hasMore: false, total: 0 };
   }
 
-  const rawProducts = data.products?.length ? data.products : (data.items ?? []);
+  let rawProducts = data.products?.length ? data.products : (data.items ?? []);
+  
+  // --- PRODUCTION-GRADE SORTING FALLBACK ---
+  // If the API sorting is unreliable or if we want to ensure perfect order on the current batch
+  if (sort === "price") {
+    rawProducts = [...rawProducts].sort((a, b) => (Number(a.price) || 0) - (Number(b.price) || 0));
+  } else if (sort === "-price") {
+    rawProducts = [...rawProducts].sort((a, b) => (Number(b.price) || 0) - (Number(a.price) || 0));
+  } else if (sort === "-createdAt" || sort === "newest") {
+    rawProducts = [...rawProducts].sort((a, b) => new Date(b.createdAt || "").getTime() - new Date(a.createdAt || "").getTime());
+  }
   
   const result = {
     products: rawProducts.map(mapApiProduct),
